@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>note.png</file>
+        <file>reloading.gif</file>
+        <file>unsaved.png</file>
+    </qresource>
+</RCC>

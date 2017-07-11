@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>585</width>
+    <height>453</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>QNote</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="img/img.qrc">
+    <normaloff>:/note.png</normaloff>:/note.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QGridLayout" name="gridLayout_2">
+    <item row="0" column="0">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="CustomTabWidget" name="tabWidget">
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="acceptDrops">
+         <bool>true</bool>
+        </property>
+        <property name="tabPosition">
+         <enum>QTabWidget::South</enum>
+        </property>
+        <property name="tabShape">
+         <enum>QTabWidget::Rounded</enum>
+        </property>
+        <property name="currentIndex">
+         <number>-1</number>
+        </property>
+        <property name="tabsClosable">
+         <bool>true</bool>
+        </property>
+        <property name="movable">
+         <bool>true</bool>
+        </property>
+        <property name="tabBarAutoHide">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QLabel" name="statusBar">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Drop files here...</string>
+          </property>
+          <property name="textInteractionFlags">
+           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lineNumberLabel">
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Line 0. Col 0.</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="indicatorLabel">
+          <property name="maximumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="scaledContents">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>585</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionSave_As"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>&amp;About</string>
+    </property>
+    <addaction name="actionAbout_QNote"/>
+    <addaction name="actionAbout_QT"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionNew_Tab"/>
+    <addaction name="actionClose_Tab"/>
+    <addaction name="actionReload_file"/>
+    <addaction name="actionAuto_Reload_tail_f"/>
+    <addaction name="separator"/>
+    <addaction name="actionFind_Replace"/>
+    <addaction name="actionGo_to_line"/>
+   </widget>
+   <widget class="QMenu" name="menuSettings">
+    <property name="title">
+     <string>&amp;Settings</string>
+    </property>
+    <addaction name="actionWord_wrap"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_theme"/>
+    <addaction name="actionSystem_theme"/>
+    <addaction name="actionAuto_Reload_delay"/>
+    <addaction name="actionAlways_on_top"/>
+    <addaction name="actionFont"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuSettings"/>
+   <addaction name="menuAbout"/>
+  </widget>
+  <action name="actionOpen">
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionSave_As">
+   <property name="text">
+    <string>Save &amp;As...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionAbout_QNote">
+   <property name="text">
+    <string>&amp;About QNote</string>
+   </property>
+  </action>
+  <action name="actionAbout_QT">
+   <property name="text">
+    <string>About &amp;QT</string>
+   </property>
+  </action>
+  <action name="actionNew_Tab">
+   <property name="text">
+    <string>&amp;New Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionClose_Tab">
+   <property name="text">
+    <string>&amp;Close Tab</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+W</string>
+   </property>
+  </action>
+  <action name="actionFind_Replace">
+   <property name="text">
+    <string>&amp;Find &amp;&amp; Replace</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F</string>
+   </property>
+  </action>
+  <action name="actionReload_file">
+   <property name="text">
+    <string>&amp;Reload File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionWord_wrap">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Word wrap</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+W</string>
+   </property>
+  </action>
+  <action name="actionGo_to_line">
+   <property name="text">
+    <string>&amp;Go to line...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionLoad_theme">
+   <property name="text">
+    <string>Load theme</string>
+   </property>
+  </action>
+  <action name="actionSystem_theme">
+   <property name="text">
+    <string>System theme</string>
+   </property>
+  </action>
+  <action name="actionAuto_Reload_tail_f">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Auto Reload (tail -f)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+R</string>
+   </property>
+  </action>
+  <action name="actionAuto_Reload_delay">
+   <property name="text">
+    <string>Auto Reload delay</string>
+   </property>
+  </action>
+  <action name="actionAlways_on_top">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Always on top</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="actionFont">
+   <property name="text">
+    <string>Font</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>CustomTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header location="global">customtabwidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="img/img.qrc"/>
+ </resources>
+ <connections/>
+</ui>

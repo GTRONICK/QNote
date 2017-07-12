@@ -90,8 +90,10 @@ void MainWindow::on_actionOpen_triggered()
                                               ,"Open File"
                                               ,gsDefaultDir
                                               ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
-        lsFileName = gobFileNames.at(giCurrentFileIndex);
-        loadFile(lsFileName);
+        if(!gobFileNames.isEmpty()){
+            lsFileName = gobFileNames.at(giCurrentFileIndex);
+            loadFile(lsFileName);
+        }
     }
 }
 

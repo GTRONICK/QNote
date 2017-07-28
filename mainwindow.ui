@@ -153,8 +153,8 @@
     <addaction name="actionLoad_theme"/>
     <addaction name="actionSystem_theme"/>
     <addaction name="actionAuto_Reload_delay"/>
-    <addaction name="actionAlways_on_top"/>
     <addaction name="actionFont"/>
+    <addaction name="actionAlways_on_top"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>

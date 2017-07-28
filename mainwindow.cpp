@@ -14,9 +14,11 @@
 #include <QTextStream>
 #include <QMessageBox>
 #include <QMimeData>
+#include <QShortcut>
 #include <QDialog>
 #include <QDebug>
 #include <QEvent>
+#include <QTimer>
 #include <QMap>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -43,6 +45,19 @@ MainWindow::MainWindow(QWidget *parent) :
     gobMovie->setScaledSize(QSize(15,15));
     gsDefaultDir = QDir::homePath();
     giDefaultDirCounter = 0;
+    QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
+
+    QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
+    QShortcut *gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+2")),this);
+    QShortcut *gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+3")),this);
+    QShortcut *gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+4")),this);
+    QShortcut *gr5_shortcut = new QShortcut(QKeySequence(tr("Ctrl+5")),this);
+
+    QShortcut *paste_gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+1")),this);
+    QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+2")),this);
+    QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+3")),this);
+    QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+4")),this);
+    QShortcut *paste_gr5_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+5")),this);
 
     this->move(QApplication::desktop()->screen()->rect().center() - this->rect().center());
 
@@ -54,6 +69,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this,SIGNAL(main_signal_loadFile(QFile*)),worker,SLOT(worker_slot_loadFile(QFile*)));
     connect(worker,SIGNAL(worker_signal_appendText(QString)),this,SLOT(main_slot_appendText(QString)));
     connect(gobTimer, SIGNAL(timeout()), this, SLOT(on_actionReload_file_triggered()));
+    connect(menuBar_shortcut,SIGNAL(activated()),this,SLOT(main_slot_showHideMenuBar()));
+    connect(gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr1()));
+    connect(gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr2()));
+    connect(gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr3()));
+    connect(gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr4()));
+    connect(gr5_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr5()));
+    connect(paste_gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr1()));
+    connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
+    connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
+    connect(paste_gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr4()));
+    connect(paste_gr5_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr5()));
     connect(workerThread,SIGNAL(finished()),worker,SLOT(deleteLater()));
     connect(workerThread,SIGNAL(finished()),workerThread,SLOT(deleteLater()));
     worker->moveToThread(workerThread);
@@ -347,16 +373,24 @@ void MainWindow::main_slot_resetCursor()
 
 void MainWindow::main_slot_tabChanged(int aIndex)
 {
+    //qDebug() << "Begin main_slot_tabChanged, aIndex = " + QString::number(aIndex);
     giCurrentTabIndex = aIndex;
     this->ui->statusBar->setText(gobHash.value(aIndex));
     gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
     QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
     gobCurrentPlainTextEdit->setFont(serifFont);
     if(gobIsModifiedTextHash.value(aIndex)){
+        //qDebug() << "File modified";
         ui->indicatorLabel->setPixmap(QPixmap("://unsaved.png"));
+    }else if(gbIsAutoreloadEnabled){
+        ui->indicatorLabel->setToolTip("Auto Reload Active");
+        this->ui->indicatorLabel->setMovie(gobMovie);
+        gobTimer->start(giTimerDelay);
+        ui->indicatorLabel->movie()->start();
     }else{
         if(!gbIsAutoreloadEnabled) ui->indicatorLabel->clear();
     }
+    //qDebug() << "End main_slot_tabChanged";
 }
 
 void MainWindow::main_slot_tabMoved(int from, int to)
@@ -487,14 +521,13 @@ void MainWindow::closeTab(int index)
 
     if(giTotalTabs > 1){
         lobFile = new QFile(gobHash.value(index));
-        giTotalTabs --;
 
-        this->ui->tabWidget->removeTab(index);
         gobHash.remove(index);
         for(int i = index; i < giTotalTabs; i ++){
             gobHash.insert(i,gobHash.value(i + 1));
         }
 
+        gobIsModifiedTextHash.remove(index);
         for(int i = index; i < giTotalTabs; i ++){
             gobIsModifiedTextHash.insert(i,gobIsModifiedTextHash.value(i + 1));
         }
@@ -504,6 +537,10 @@ void MainWindow::closeTab(int index)
             lobFile->flush();
             lobFile->~QFile();
         }
+
+        giTotalTabs --;
+        this->ui->tabWidget->removeTab(index);
+
     }else{
         if(!saveConfig()){
             QMessageBox::critical(this,"Warning!","The config file could not be saved");
@@ -678,4 +715,115 @@ void MainWindow::on_actionAlways_on_top_triggered(bool checked)
         this->setWindowFlags(flags ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
         this->show();
     }
+}
+
+void MainWindow::main_slot_showHideMenuBar()
+{
+    if(ui->menuBar->isVisible()){
+        this->ui->menuBar->hide();
+        this->ui->tabWidget->tabBar()->hide();
+    }else{
+        this->ui->menuBar->show();
+        this->ui->tabWidget->tabBar()->show();
+    }
+}
+
+void MainWindow::main_slot_gr1()
+{
+    gsStatusBarTemporalText = ui->statusBar->text();
+    gsGr1 = gobCurrentPlainTextEdit->textCursor().selectedText();
+    if(!gsGr1.isEmpty()){
+        ui->statusBar->setText("Group #1 assigned.");
+    }
+    else {
+        ui->statusBar->setText("Group #1 cleared.");
+    }
+
+    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
+}
+
+void MainWindow::main_slot_gr2()
+{
+    QString lsTemporal = ui->statusBar->text();
+    gsGr2 = gobCurrentPlainTextEdit->textCursor().selectedText();
+    if(!gsGr2.isEmpty()){
+        ui->statusBar->setText("Group #2 assigned.");
+    }
+    else {
+        ui->statusBar->setText("Group #2 cleared.");
+    }
+
+    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
+}
+
+void MainWindow::main_slot_gr3()
+{
+    QString lsTemporal = ui->statusBar->text();
+    gsGr3 = gobCurrentPlainTextEdit->textCursor().selectedText();
+    if(!gsGr3.isEmpty()){
+        ui->statusBar->setText("Group #3 assigned.");
+    }
+    else {
+        ui->statusBar->setText("Group #3 cleared.");
+    }
+
+    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
+}
+
+void MainWindow::main_slot_gr4()
+{
+    QString lsTemporal = ui->statusBar->text();
+    gsGr4 = gobCurrentPlainTextEdit->textCursor().selectedText();
+    if(!gsGr4.isEmpty()){
+        ui->statusBar->setText("Group #4 assigned.");
+    }
+    else {
+        ui->statusBar->setText("Group #4 cleared.");
+    }
+
+    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
+}
+
+void MainWindow::main_slot_gr5()
+{
+    QString lsTemporal = ui->statusBar->text();
+    gsGr5 = gobCurrentPlainTextEdit->textCursor().selectedText();
+    if(!gsGr5.isEmpty()){
+        ui->statusBar->setText("Group #5 assigned.");
+    }
+    else {
+        ui->statusBar->setText("Group #5 cleared.");
+    }
+
+    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
+}
+
+void MainWindow::main_slot_pasteGr1()
+{
+    gobCurrentPlainTextEdit->textCursor().insertText(gsGr1);
+}
+
+void MainWindow::main_slot_pasteGr2()
+{
+    gobCurrentPlainTextEdit->textCursor().insertText(gsGr2);
+}
+
+void MainWindow::main_slot_pasteGr3()
+{
+    gobCurrentPlainTextEdit->textCursor().insertText(gsGr3);
+}
+
+void MainWindow::main_slot_pasteGr4()
+{
+    gobCurrentPlainTextEdit->textCursor().insertText(gsGr4);
+}
+
+void MainWindow::main_slot_pasteGr5()
+{
+    gobCurrentPlainTextEdit->textCursor().insertText(gsGr5);
+}
+
+void MainWindow::main_slot_resetStatusBarText()
+{
+    this->ui->statusBar->setText(gobHash.value(giCurrentTabIndex));
 }

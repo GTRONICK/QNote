@@ -20,7 +20,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Seach &amp; replace</string>
+   <string>Search &amp; replace</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">

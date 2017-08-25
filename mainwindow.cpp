@@ -84,7 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(workerThread,SIGNAL(finished()),workerThread,SLOT(deleteLater()));
     worker->moveToThread(workerThread);
     workerThread->start();
-    on_actionNew_Tab_triggered();
+    on_actionNew_Tab_triggered();    
 }
 
 MainWindow::~MainWindow()
@@ -108,7 +108,7 @@ void MainWindow::on_actionOpen_triggered()
     giCurrentFileIndex = 0;
 
     if(!gobFileNames.isEmpty()){
-        //qDebug() << "Reading array, giCurrentFileIndex = " << giCurrentFileIndex;
+        qDebug() << "Reading array, giCurrentFileIndex = " << giCurrentFileIndex;
         lsFileName = gobFileNames.at(giCurrentFileIndex);
         loadFile(lsFileName);
     }else {
@@ -240,13 +240,12 @@ bool MainWindow::loadConfig()
         }
     }
 
-
     return true;
 }
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.0.0",
+    QMessageBox::about(this,"QNote 1.2.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -301,8 +300,6 @@ void MainWindow::on_actionNew_Tab_triggered()
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
     gobHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-
-
 }
 
 void MainWindow::on_actionReload_file_triggered()
@@ -490,14 +487,14 @@ void MainWindow::checkIfUnsaved(int index)
 
         switch (ret) {
           case QMessageBox::Save:
-              if(!gbIsReloadFile && on_actionSave_triggered()) closeTab(index);
+              if(!gbIsReloadFile && !gbIsAutoreloadEnabled && on_actionSave_triggered()) closeTab(index);
               else{
                   ui->indicatorLabel->clear();
                   on_actionSave_triggered();
               }
               break;
           case QMessageBox::Discard:
-              if(!gbIsReloadFile) closeTab(index);
+              if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
               else{
                   ui->indicatorLabel->clear();
               }
@@ -507,11 +504,11 @@ void MainWindow::checkIfUnsaved(int index)
               break;
           default:
               on_actionSave_triggered();
-              if(!gbIsReloadFile) closeTab(index);
+              if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
               break;
         }
     }else{
-        if(!gbIsReloadFile) closeTab(index);
+        if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
     }
 }
 
@@ -554,8 +551,9 @@ void MainWindow::loadFile(QString asFileName)
     //qDebug() << "Begin loadFile, asFileName: " << asFileName;
     if(!asFileName.isEmpty()){
         gobFile = new QFile(asFileName);
+        double liFileSize = gobFile->size()/1000000.0;
 
-        if(gobFile->exists()){
+        if(gobFile->exists() && liFileSize < 10){
             on_actionNew_Tab_triggered();
             gobHash.insert(giCurrentTabIndex,asFileName);
             setCurrentTabNameFromFile(asFileName);
@@ -570,7 +568,8 @@ void MainWindow::loadFile(QString asFileName)
             emit(main_signal_loadFile(gobFile));
 
         }else{
-            QMessageBox::warning(this,"File not found","The file " + asFileName + " does not exist.");
+            QMessageBox::warning(this,"File not found","The file " + asFileName + " does not exist or is too heavy.");
+            gobFileNames.removeAt(giCurrentFileIndex);
         }
     }
     //qDebug() << "End loadFile";
@@ -658,9 +657,11 @@ void MainWindow::on_actionSystem_theme_triggered()
 
 void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
 {
+    qDebug() << "Autoreload: " << arg1;
     gbIsAutoreloadEnabled = arg1;
 
     if(arg1){
+        checkIfUnsaved(giCurrentTabIndex);
         ui->indicatorLabel->setToolTip("Auto Reload Active");
         this->ui->indicatorLabel->setMovie(gobMovie);
         gobTimer->start(giTimerDelay);
@@ -693,7 +694,7 @@ void MainWindow::on_actionFont_triggered()
 {
     bool ok;
     QFont font = QFontDialog::getFont(
-                    &ok, QFont("Helvetica [Cronyx]", 10), this);
+                    &ok, QFont(gsSavedFont, giSavedFontPointSize), this);
     if (ok) {
         gobCurrentPlainTextEdit->setFont(font);
         giSavedFontPointSize = gobCurrentPlainTextEdit->fontInfo().pointSize();
@@ -725,6 +726,13 @@ void MainWindow::main_slot_showHideMenuBar()
     }else{
         this->ui->menuBar->show();
         this->ui->tabWidget->tabBar()->show();
+    }
+}
+
+void MainWindow::main_slot_highlighterDone()
+{
+    if(!gobIsModifiedTextHash.value(giCurrentTabIndex) && !gbIsAutoreloadEnabled){
+        ui->indicatorLabel->clear();
     }
 }
 

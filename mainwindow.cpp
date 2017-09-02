@@ -729,13 +729,6 @@ void MainWindow::main_slot_showHideMenuBar()
     }
 }
 
-void MainWindow::main_slot_highlighterDone()
-{
-    if(!gobIsModifiedTextHash.value(giCurrentTabIndex) && !gbIsAutoreloadEnabled){
-        ui->indicatorLabel->clear();
-    }
-}
-
 void MainWindow::main_slot_gr1()
 {
     gsStatusBarTemporalText = ui->statusBar->text();

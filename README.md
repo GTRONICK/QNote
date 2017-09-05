@@ -49,7 +49,7 @@ Go to the Settings menu, and click on Font. The font dialog will appear, and the
 **15. Set the application Always on Top:**    
 Go to the Settings menu and check the Always on Top check box. This change will apply immediately. This could not work as spected in Windows, for now.
 
-#ADVANCED USAGE:
+## ADVANCED USAGE:
 
 **16. Group control:**		
 This feature allow you to assing up to 5 buffers to hold text. Press Ctrl + <1-5> to assign the desired group, for example:

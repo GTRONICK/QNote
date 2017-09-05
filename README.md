@@ -49,3 +49,4 @@ Go to the Settings menu, and click on Font. The font dialog will appear, and the
 **15. Set the application Always on Top:**    
 Go to the Settings menu and check the Always on Top check box. This change will apply immediately. This could not work as spected in Windows, for now.
 
+Send any suggestion to contact@gtronick.com, or go to gtronick.com and fill the form in the contact section.

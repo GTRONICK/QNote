@@ -49,4 +49,20 @@ Go to the Settings menu, and click on Font. The font dialog will appear, and the
 **15. Set the application Always on Top:**    
 Go to the Settings menu and check the Always on Top check box. This change will apply immediately. This could not work as spected in Windows, for now.
 
+#ADVANCED USAGE:
+
+**16. Group control:**		
+This feature allow you to assing up to 5 buffers to hold text. Press Ctrl + <1-5> to assign the desired group, for example:
+
+Ctrl +1, will assign the current selected text, to the buffer 1; If no text is selected, the buffer will be cleared.
+
+To paste a buffer content at the current cursor position, press Ctrl + Shift + <1-5>.
+
+**17. Open the file's containing folder:**		
+Click on the status bar, at the file path location to open the containing folder.
+
+Think in this as a multi clipboard.
+
+------------------------------------------
 Send any suggestion to contact@gtronick.com, or go to gtronick.com and fill the form in the contact section.
+

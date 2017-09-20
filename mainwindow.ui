@@ -90,7 +90,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Line 0. Col 11111.</string>
+           <string>Line 0. Col 0.</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

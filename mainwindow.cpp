@@ -304,21 +304,27 @@ void MainWindow::on_actionNew_Tab_triggered()
 
 void MainWindow::on_actionReload_file_triggered()
 {
+    QString lsFileName = gobHash.value(giCurrentTabIndex);
+    gobFile = new QFile(lsFileName);
+
     gbIsReloadFile = true;
+
     if(!gbIsAutoreloadEnabled) checkIfUnsaved(giCurrentTabIndex);
+
     if(gbSaveCancelled == false){
-        QString lsFileName = gobHash.value(giCurrentTabIndex);
-        if(!lsFileName.isEmpty()){
-            gobFile = new QFile(lsFileName);
+
+        if(!lsFileName.isEmpty() && gobFile->exists()){
+
             setCurrentTabNameFromFile(lsFileName);
-            if(gobFile->exists()){
-                if(!gobFile->open(QIODevice::ReadOnly | QIODevice::Text)){
-                    QMessageBox::critical(this,"Error","File could not be opened");
-                    return;
-                }
-                emit main_signal_loadFile(gobFile);
+
+            if(!gobFile->open(QIODevice::ReadOnly | QIODevice::Text)){
+                QMessageBox::critical(this,"Error","File could not be opened");
+                return;
             }
+            emit main_signal_loadFile(gobFile);
+
         }else{
+            if(gbIsAutoreloadEnabled) this->on_actionAuto_Reload_tail_f_toggled(false);
             gbIsReloadFile = false;
         }
     }else{
@@ -726,6 +732,13 @@ void MainWindow::main_slot_showHideMenuBar()
     }else{
         this->ui->menuBar->show();
         this->ui->tabWidget->tabBar()->show();
+    }
+}
+
+void MainWindow::main_slot_highlighterDone()
+{
+    if(!gobIsModifiedTextHash.value(giCurrentTabIndex) && !gbIsAutoreloadEnabled){
+        ui->indicatorLabel->clear();
     }
 }
 

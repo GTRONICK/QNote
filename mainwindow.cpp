@@ -305,15 +305,14 @@ void MainWindow::on_actionNew_Tab_triggered()
 void MainWindow::on_actionReload_file_triggered()
 {
     QString lsFileName = gobHash.value(giCurrentTabIndex);
-    gobFile = new QFile(lsFileName);
 
-    gbIsReloadFile = true;
+    if(checkFileExist(lsFileName)){
 
-    if(!gbIsAutoreloadEnabled) checkIfUnsaved(giCurrentTabIndex);
+        gbIsReloadFile = true;
 
-    if(gbSaveCancelled == false){
+        if(!gbIsAutoreloadEnabled) checkIfUnsaved(giCurrentTabIndex);
 
-        if(!lsFileName.isEmpty() && gobFile->exists()){
+        if(gbSaveCancelled == false){
 
             setCurrentTabNameFromFile(lsFileName);
 
@@ -322,13 +321,13 @@ void MainWindow::on_actionReload_file_triggered()
                 return;
             }
             emit main_signal_loadFile(gobFile);
-
         }else{
-            if(gbIsAutoreloadEnabled) this->on_actionAuto_Reload_tail_f_toggled(false);
-            gbIsReloadFile = false;
+            gbSaveCancelled = false;
         }
+
     }else{
-        gbSaveCancelled = false;
+        if(gbIsAutoreloadEnabled) this->on_actionAuto_Reload_tail_f_toggled(false);
+        gbIsReloadFile = false;
     }
 }
 
@@ -518,6 +517,17 @@ void MainWindow::checkIfUnsaved(int index)
     }
 }
 
+bool MainWindow::checkFileExist(QString asFileName)
+{
+    gobFile = new QFile(asFileName);
+
+    if(!asFileName.isEmpty() && gobFile->exists()){
+        return true;
+    }else{
+        return false;
+    }
+}
+
 void MainWindow::closeTab(int index)
 {
     QFile *lobFile;
@@ -663,10 +673,11 @@ void MainWindow::on_actionSystem_theme_triggered()
 
 void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
 {
+    QString lsFileName = gobHash.value(giCurrentTabIndex);
     qDebug() << "Autoreload: " << arg1;
     gbIsAutoreloadEnabled = arg1;
 
-    if(arg1){
+    if(arg1 && checkFileExist(lsFileName)){
         checkIfUnsaved(giCurrentTabIndex);
         ui->indicatorLabel->setToolTip("Auto Reload Active");
         this->ui->indicatorLabel->setMovie(gobMovie);
@@ -674,9 +685,10 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         ui->indicatorLabel->movie()->start();
     }else{
         ui->indicatorLabel->setToolTip("");
-        gobTimer->stop();
-        ui->indicatorLabel->movie()->stop();
+        if(gobTimer->isActive()) gobTimer->stop();
+        if(ui->indicatorLabel->movie() != NULL) ui->indicatorLabel->movie()->stop();
         ui->indicatorLabel->clear();
+        if(!checkFileExist(lsFileName)) QMessageBox::critical(this,"ERROR","The file can't be loaded");
     }
 }
 

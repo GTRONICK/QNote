@@ -22,6 +22,7 @@ public:
     void closeEvent(QCloseEvent *event);
     void dragEnterEvent(QDragEnterEvent *event);
     void setFileNameFromCommandLine(QStringList asFileNames);
+    void setStatusBarTextAsLink(QString asText);
     ~MainWindow();
 
 signals:
@@ -73,9 +74,12 @@ private slots:
     void main_slot_resetStatusBarText();
 
 
+    void on_statusBar_linkActivated(const QString &link);
+
 private:
     void setCurrentTabNameFromFile(QString asFileName);
     void checkIfUnsaved(int index);
+    bool checkFileExist(QString asFileName);
     void closeTab(int index);
     void loadFile(QString asFileName);
     bool saveFile(QString asFileName, QString asText);

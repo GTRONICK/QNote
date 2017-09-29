@@ -4,6 +4,7 @@
 #include "mainwindow.h"
 #include <QIODevice>
 #include <QDesktopWidget>
+#include <QDesktopServices>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
 #include <QApplication>
@@ -144,7 +145,7 @@ bool MainWindow::on_actionSave_As_triggered()
     ui->indicatorLabel->clear();
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
     setCurrentTabNameFromFile(lsFileName);
-    ui->statusBar->setText(lsFileName);
+    this->setStatusBarTextAsLink(lsFileName);
     return true;
 }
 
@@ -245,7 +246,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.2.0",
+    QMessageBox::about(this,"QNote 1.3.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -377,7 +378,7 @@ void MainWindow::main_slot_tabChanged(int aIndex)
 {
     //qDebug() << "Begin main_slot_tabChanged, aIndex = " + QString::number(aIndex);
     giCurrentTabIndex = aIndex;
-    this->ui->statusBar->setText(gobHash.value(aIndex));
+    this->setStatusBarTextAsLink(gobHash.value(aIndex));
     gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
     QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
     gobCurrentPlainTextEdit->setFont(serifFont);
@@ -545,7 +546,7 @@ void MainWindow::closeTab(int index)
             gobIsModifiedTextHash.insert(i,gobIsModifiedTextHash.value(i + 1));
         }
 
-        ui->statusBar->setText(gobHash.value(giCurrentTabIndex));
+        this->setStatusBarTextAsLink(gobHash.value(giCurrentTabIndex));
         if(lobFile->isOpen()){
             lobFile->flush();
             lobFile->~QFile();
@@ -597,6 +598,11 @@ void MainWindow::setFileNameFromCommandLine(QStringList asFileNames)
     gobFileNames = asFileNames;
     this->on_actionOpen_triggered();
     //qDebug() << "End setFileNameFromCommandLine";
+}
+
+void MainWindow::setStatusBarTextAsLink(QString asText)
+{
+    ui->statusBar->setText("<a href=\"" + asText + "\">" + asText + "</a>");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -721,6 +727,12 @@ void MainWindow::on_actionFont_triggered()
     }
 }
 
+/**
+  Ajusta el comportamiento de la ventana principal, de modo que
+  la mantiene encima de las demas en caso de activarse esta opcion.
+  @param checked True: Mantiene la ventana encima de las demas. False:
+  La ventana se oculta cuando pierde el foco.
+*/
 void MainWindow::on_actionAlways_on_top_triggered(bool checked)
 {
     Qt::WindowFlags flags = this->windowFlags();
@@ -736,6 +748,10 @@ void MainWindow::on_actionAlways_on_top_triggered(bool checked)
     }
 }
 
+/**
+  Muestra la barra de menu en caso de que esta se
+  encuentre oculta. La oculta si esta visible.
+*/
 void MainWindow::main_slot_showHideMenuBar()
 {
     if(ui->menuBar->isVisible()){
@@ -747,13 +763,10 @@ void MainWindow::main_slot_showHideMenuBar()
     }
 }
 
-void MainWindow::main_slot_highlighterDone()
-{
-    if(!gobIsModifiedTextHash.value(giCurrentTabIndex) && !gbIsAutoreloadEnabled){
-        ui->indicatorLabel->clear();
-    }
-}
-
+/**
+  Asigna el texto seleccionado al buffer 1. Si no hay nada
+  seleccionado, se limpia el buffer.
+*/
 void MainWindow::main_slot_gr1()
 {
     gsStatusBarTemporalText = ui->statusBar->text();
@@ -768,6 +781,10 @@ void MainWindow::main_slot_gr1()
     QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
 }
 
+/**
+  Asigna el texto seleccionado al buffer 2. Si no hay nada
+  seleccionado, se limpia el buffer.
+*/
 void MainWindow::main_slot_gr2()
 {
     QString lsTemporal = ui->statusBar->text();
@@ -782,6 +799,10 @@ void MainWindow::main_slot_gr2()
     QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
 }
 
+/**
+  Asigna el texto seleccionado al buffer 3. Si no hay nada
+  seleccionado, se limpia el buffer.
+*/
 void MainWindow::main_slot_gr3()
 {
     QString lsTemporal = ui->statusBar->text();
@@ -796,6 +817,10 @@ void MainWindow::main_slot_gr3()
     QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
 }
 
+/**
+  Asigna el texto seleccionado al buffer 4. Si no hay nada
+  seleccionado, se limpia el buffer.
+*/
 void MainWindow::main_slot_gr4()
 {
     QString lsTemporal = ui->statusBar->text();
@@ -810,6 +835,10 @@ void MainWindow::main_slot_gr4()
     QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
 }
 
+/**
+  Asigna el texto seleccionado al buffer 5. Si no hay nada
+  seleccionado, se limpia el buffer.
+*/
 void MainWindow::main_slot_gr5()
 {
     QString lsTemporal = ui->statusBar->text();
@@ -824,32 +853,64 @@ void MainWindow::main_slot_gr5()
     QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
 }
 
+/**
+  Pega el texto contenido en el buffer 1
+*/
 void MainWindow::main_slot_pasteGr1()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr1);
 }
 
+/**
+  Pega el texto contenido en el buffer 2
+*/
 void MainWindow::main_slot_pasteGr2()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr2);
 }
 
+/**
+  Pega el texto contenido en el buffer 3
+*/
 void MainWindow::main_slot_pasteGr3()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr3);
 }
 
+/**
+  Pega el texto contenido en el buffer 4
+*/
 void MainWindow::main_slot_pasteGr4()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr4);
 }
 
+/**
+  Pega el texto contenido en el buffer 5
+*/
 void MainWindow::main_slot_pasteGr5()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr5);
 }
 
+/**
+  Retorna el texto del status bar a su estado anterior. Se usa
+  despues de haber mostrado un texto temporalmente.
+*/
 void MainWindow::main_slot_resetStatusBarText()
 {
-    this->ui->statusBar->setText(gobHash.value(giCurrentTabIndex));
+    this->setStatusBarTextAsLink(gobHash.value(giCurrentTabIndex));
+}
+
+/**
+  Funcion que se dispara cuando se hace click en un enlace, en la barra de estado.
+  Abre el directorio padre del archivo especificado en el texto.
+  @param link - Texto del enlace
+*/
+void MainWindow::on_statusBar_linkActivated(const QString &link)
+{
+    if(!QDesktopServices::openUrl(QUrl::fromLocalFile(QFileInfo(link).absolutePath())))
+    {
+        QMessageBox::critical(this,"ERROR","Cannot open containing folder.");
+    }
 }

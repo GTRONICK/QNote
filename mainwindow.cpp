@@ -246,7 +246,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.3.0",
+    QMessageBox::about(this,"QNote 1.4.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -319,7 +319,7 @@ void MainWindow::on_actionReload_file_triggered()
 
             if(!gobFile->open(QIODevice::ReadOnly | QIODevice::Text)){
                 QMessageBox::critical(this,"Error","File could not be opened");
-                return;
+                gbIsReloadFile = false;
             }
             emit main_signal_loadFile(gobFile);
         }else{
@@ -327,8 +327,11 @@ void MainWindow::on_actionReload_file_triggered()
         }
 
     }else{
-        if(gbIsAutoreloadEnabled) this->on_actionAuto_Reload_tail_f_toggled(false);
         gbIsReloadFile = false;
+        if(gbIsAutoreloadEnabled){
+            if(gobTimer->isActive()) gobTimer->stop();
+            this->on_actionAuto_Reload_tail_f_toggled(false);
+        }
     }
 }
 
@@ -607,13 +610,14 @@ void MainWindow::setStatusBarTextAsLink(QString asText)
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    bool lbClose = false;
+    bool lbClose = true;
 
     for(int i = giTotalTabs - 1; i >= 0; i --){
         checkIfUnsaved(i);
         if(gbSaveCancelled){
             i = 0;
             gbSaveCancelled = false;
+            lbClose = false;
         }
     }
     if(lbClose){
@@ -694,7 +698,14 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         if(gobTimer->isActive()) gobTimer->stop();
         if(ui->indicatorLabel->movie() != NULL) ui->indicatorLabel->movie()->stop();
         ui->indicatorLabel->clear();
-        if(!checkFileExist(lsFileName)) QMessageBox::critical(this,"ERROR","The file can't be loaded");
+        if(!checkFileExist(lsFileName)){
+            disconnect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
+            ui->actionAuto_Reload_tail_f->setChecked(false);
+            connect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
+            QMessageBox::critical(this,"ERROR","The file can't be loaded");
+        }
+        gbIsAutoreloadEnabled = false;
+        gbIsReloadFile = false;
     }
 }
 
@@ -729,8 +740,8 @@ void MainWindow::on_actionFont_triggered()
 
 /**
   Ajusta el comportamiento de la ventana principal, de modo que
-  la mantiene encima de las demas en caso de activarse esta opcion.
-  @param checked True: Mantiene la ventana encima de las demas. False:
+  la mantiene encima de las demÃ¡s en caso de activarse esta opcion.
+  @param checked True: Mantiene la ventana encima de las demÃ¡s. False:
   La ventana se oculta cuando pierde el foco.
 */
 void MainWindow::on_actionAlways_on_top_triggered(bool checked)
@@ -749,8 +760,8 @@ void MainWindow::on_actionAlways_on_top_triggered(bool checked)
 }
 
 /**
-  Muestra la barra de menu en caso de que esta se
-  encuentre oculta. La oculta si esta visible.
+  Muestra la barra de menÃº en caso de que esta se
+  encuentre oculta. La oculta si estÃ¡ visible.
 */
 void MainWindow::main_slot_showHideMenuBar()
 {
@@ -895,7 +906,7 @@ void MainWindow::main_slot_pasteGr5()
 
 /**
   Retorna el texto del status bar a su estado anterior. Se usa
-  despues de haber mostrado un texto temporalmente.
+  despuÃ©s de haber mostrado un texto temporalmente.
 */
 void MainWindow::main_slot_resetStatusBarText()
 {
@@ -903,7 +914,7 @@ void MainWindow::main_slot_resetStatusBarText()
 }
 
 /**
-  Funcion que se dispara cuando se hace click en un enlace, en la barra de estado.
+  FunciÃ³n que se dispara cuando se hace click en un enlace, en la barra de estado.
   Abre el directorio padre del archivo especificado en el texto.
   @param link - Texto del enlace
 */

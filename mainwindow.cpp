@@ -30,6 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     giCurrentTabIndex = 0;
     giCurrentFileIndex = 0;
     giTotalTabs = 0;
+    gobFileNames.clear();
     giTabCharacters = 4;
     giTimerDelay = 250;
     gsThemeFile = "Default";
@@ -64,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(main_slot_tabChanged(int)));
     connect(ui->tabWidget,SIGNAL(ctw_signal_tabMoved(int,int)),this,SLOT(main_slot_tabMoved(int,int)));
+    connect(ui->menuOpen_Recent, SIGNAL(triggered(QAction*)), this, SLOT(main_slot_loadFileFromAction(QAction*)));
     connect(this,SIGNAL(main_signal_setTextEdit(QPlainTextEdit*)),gobSearchDialog,SLOT(search_slot_setTextEdit(QPlainTextEdit*)));
     connect(gobSearchDialog,SIGNAL(search_signal_getTextEditText()),this,SLOT(main_slot_getTextEditText()));
     connect(gobSearchDialog,SIGNAL(search_signal_resetCursor()),this,SLOT(main_slot_resetCursor()));
@@ -97,8 +99,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    QString lsFileName = "";
-
     giDefaultDirCounter ++;
 
     if(giDefaultDirCounter > 1) {
@@ -108,20 +108,14 @@ void MainWindow::on_actionOpen_triggered()
 
     giCurrentFileIndex = 0;
 
-    if(!gobFileNames.isEmpty()){
-        qDebug() << "Reading array, giCurrentFileIndex = " << giCurrentFileIndex;
-        lsFileName = gobFileNames.at(giCurrentFileIndex);
-        loadFile(lsFileName);
-    }else {
+    if(gobFileNames.isEmpty()) {
         gobFileNames = QFileDialog::getOpenFileNames(this
                                               ,"Open File"
                                               ,gsDefaultDir
                                               ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
-        if(!gobFileNames.isEmpty()){
-            lsFileName = gobFileNames.at(giCurrentFileIndex);
-            loadFile(lsFileName);
-        }
     }
+
+    this->addRecentFiles();
 }
 
 bool MainWindow::on_actionSave_As_triggered()
@@ -198,6 +192,12 @@ bool MainWindow::saveConfig()
             + gobCurrentPlainTextEdit->fontInfo().family() + "@@"
             + QString::number(gobCurrentPlainTextEdit->fontInfo().style()) + "@@"
             + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize());
+
+    for(int i = 0; i < gobRecentFiles.length(); i++){
+
+        configText = configText + "@@" + gobRecentFiles.at(i);
+    }
+
     if(!saveFile("config.ini",configText)) return false;
     return true;
 }
@@ -226,10 +226,15 @@ bool MainWindow::loadConfig()
 
     lobValues = line.split("@@");
 
-    if(lobValues.length() >= 4){
+    if(lobValues.length() >= 5){
         gsSavedFont = line.split("@@").at(1);
         giSavedFontStyle = line.split("@@").at(2).toInt();
         giSavedFontPointSize = line.split("@@").at(3).toInt();
+        gobRecentFiles.clear();
+        for(int i = 4; i < line.split("@@").length(); i++){
+            gobRecentFiles.append(line.split("@@").at(i));
+        }
+        this->addRecentFiles();
     }
 
     if(!line.isEmpty() && line != ""){
@@ -241,12 +246,14 @@ bool MainWindow::loadConfig()
         }
     }
 
+
+
     return true;
 }
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.4.0",
+    QMessageBox::about(this,"QNote 1.5.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -462,8 +469,7 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
         {
             gobFileNames.append(urlList.at(i).toLocalFile());
         }
-
-        loadFile(gobFileNames.at(0));
+        this->addRecentFiles();
         event->acceptProposedAction();
     }
 }
@@ -527,9 +533,9 @@ bool MainWindow::checkFileExist(QString asFileName)
 
     if(!asFileName.isEmpty() && gobFile->exists()){
         return true;
-    }else{
-        return false;
     }
+
+    return false;
 }
 
 void MainWindow::closeTab(int index)
@@ -571,9 +577,9 @@ void MainWindow::loadFile(QString asFileName)
     //qDebug() << "Begin loadFile, asFileName: " << asFileName;
     if(!asFileName.isEmpty()){
         gobFile = new QFile(asFileName);
-        double liFileSize = gobFile->size()/1000000.0;
-
-        if(gobFile->exists() && liFileSize < 10){
+        double liFileSize = gobFile->size()/MAX_SIZE;
+        //Crea nuevo Tab
+        if(gobFile->exists() && liFileSize < (MAX_SIZE/1000000.0)){
             on_actionNew_Tab_triggered();
             gobHash.insert(giCurrentTabIndex,asFileName);
             setCurrentTabNameFromFile(asFileName);
@@ -597,10 +603,8 @@ void MainWindow::loadFile(QString asFileName)
 
 void MainWindow::setFileNameFromCommandLine(QStringList asFileNames)
 {
-    //qDebug() << "Begin setFileNameFromCommandLine, asFileNames: " << asFileNames;
     gobFileNames = asFileNames;
     this->on_actionOpen_triggered();
-    //qDebug() << "End setFileNameFromCommandLine";
 }
 
 void MainWindow::setStatusBarTextAsLink(QString asText)
@@ -680,11 +684,9 @@ void MainWindow::on_actionSystem_theme_triggered()
     emit main_signal_refreshHighlight();
 }
 
-
 void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
 {
     QString lsFileName = gobHash.value(giCurrentTabIndex);
-    qDebug() << "Autoreload: " << arg1;
     gbIsAutoreloadEnabled = arg1;
 
     if(arg1 && checkFileExist(lsFileName)){
@@ -714,8 +716,7 @@ void MainWindow::on_actionAuto_Reload_delay_triggered()
     bool lbOk;
     int liDelay = QInputDialog::getInt(this, tr("Auto Reload delay (ms)"),
                                  tr("milliseconds:"), 250, 100, 5000, 1, &lbOk);
-    if (lbOk)
-        giTimerDelay = liDelay;
+    if (lbOk) giTimerDelay = liDelay;
 }
 
 void MainWindow::main_slot_currentLineChanged()
@@ -740,28 +741,25 @@ void MainWindow::on_actionFont_triggered()
 
 /**
   Ajusta el comportamiento de la ventana principal, de modo que
-  la mantiene encima de las demÃ¡s en caso de activarse esta opcion.
-  @param checked True: Mantiene la ventana encima de las demÃ¡s. False:
+  la mantiene encima de las demás en caso de activarse esta opcion.
+  @param checked True: Mantiene la ventana encima de las demás. False:
   La ventana se oculta cuando pierde el foco.
 */
 void MainWindow::on_actionAlways_on_top_triggered(bool checked)
 {
     Qt::WindowFlags flags = this->windowFlags();
-    if (checked)
-    {
+    if (checked) {
         this->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-        this->show();
-    }
-    else
-    {
+    }else {
         this->setWindowFlags(flags ^ (Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint));
-        this->show();
     }
+
+    this->show();
 }
 
 /**
-  Muestra la barra de menÃº en caso de que esta se
-  encuentre oculta. La oculta si estÃ¡ visible.
+  Muestra la barra de menú en caso de que esta se
+  encuentre oculta. La oculta si está visible.
 */
 void MainWindow::main_slot_showHideMenuBar()
 {
@@ -780,7 +778,6 @@ void MainWindow::main_slot_showHideMenuBar()
 */
 void MainWindow::main_slot_gr1()
 {
-    gsStatusBarTemporalText = ui->statusBar->text();
     gsGr1 = gobCurrentPlainTextEdit->textCursor().selectedText();
     if(!gsGr1.isEmpty()){
         ui->statusBar->setText("Group #1 assigned.");
@@ -798,7 +795,6 @@ void MainWindow::main_slot_gr1()
 */
 void MainWindow::main_slot_gr2()
 {
-    QString lsTemporal = ui->statusBar->text();
     gsGr2 = gobCurrentPlainTextEdit->textCursor().selectedText();
     if(!gsGr2.isEmpty()){
         ui->statusBar->setText("Group #2 assigned.");
@@ -816,7 +812,6 @@ void MainWindow::main_slot_gr2()
 */
 void MainWindow::main_slot_gr3()
 {
-    QString lsTemporal = ui->statusBar->text();
     gsGr3 = gobCurrentPlainTextEdit->textCursor().selectedText();
     if(!gsGr3.isEmpty()){
         ui->statusBar->setText("Group #3 assigned.");
@@ -834,7 +829,6 @@ void MainWindow::main_slot_gr3()
 */
 void MainWindow::main_slot_gr4()
 {
-    QString lsTemporal = ui->statusBar->text();
     gsGr4 = gobCurrentPlainTextEdit->textCursor().selectedText();
     if(!gsGr4.isEmpty()){
         ui->statusBar->setText("Group #4 assigned.");
@@ -852,7 +846,6 @@ void MainWindow::main_slot_gr4()
 */
 void MainWindow::main_slot_gr5()
 {
-    QString lsTemporal = ui->statusBar->text();
     gsGr5 = gobCurrentPlainTextEdit->textCursor().selectedText();
     if(!gsGr5.isEmpty()){
         ui->statusBar->setText("Group #5 assigned.");
@@ -906,7 +899,7 @@ void MainWindow::main_slot_pasteGr5()
 
 /**
   Retorna el texto del status bar a su estado anterior. Se usa
-  despuÃ©s de haber mostrado un texto temporalmente.
+  después de haber mostrado un texto temporalmente.
 */
 void MainWindow::main_slot_resetStatusBarText()
 {
@@ -914,7 +907,7 @@ void MainWindow::main_slot_resetStatusBarText()
 }
 
 /**
-  FunciÃ³n que se dispara cuando se hace click en un enlace, en la barra de estado.
+  Función que se dispara cuando se hace click en un enlace, en la barra de estado.
   Abre el directorio padre del archivo especificado en el texto.
   @param link - Texto del enlace
 */
@@ -924,4 +917,35 @@ void MainWindow::on_statusBar_linkActivated(const QString &link)
     {
         QMessageBox::critical(this,"ERROR","Cannot open containing folder.");
     }
+}
+
+/**
+  Agrega los archivos recientes al menu de archivos recientes.
+*/
+void MainWindow::addRecentFiles()
+{
+    //qDebug() << "Begin addRecentFiles()";
+    if(!gobFileNames.isEmpty()){
+        QString lsFileName = gobFileNames.at(giCurrentFileIndex);
+        loadFile(lsFileName);
+    }
+    for(int i = 0; i < gobFileNames.length(); i++){
+        if(!gobRecentFiles.contains(gobFileNames.at(i))){
+            gobRecentFiles.append(gobFileNames.at(i));
+        }
+    }
+
+    ui->menuOpen_Recent->clear();
+    for(int i = 0; i < gobRecentFiles.size(); i++){
+        QAction *lobAction = new QAction(gobRecentFiles.at(i), this);
+        ui->menuOpen_Recent->addAction(lobAction);
+    }
+   // qDebug() << "End addRecentFiles()";
+}
+
+void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
+{
+    //qDebug() << "Begin main_slot_loadFileFromAction, aobAction = " + aobAction->text();
+    loadFile(aobAction->text());
+    //qDebug() << "End main_slot_loadFileFromAction";
 }

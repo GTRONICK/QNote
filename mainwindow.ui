@@ -125,17 +125,24 @@
      <x>0</x>
      <y>0</y>
      <width>585</width>
-     <height>22</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>&amp;File</string>
     </property>
+    <widget class="QMenu" name="menuOpen_Recent">
+     <property name="title">
+      <string>Open Recent</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
     <addaction name="separator"/>
     <addaction name="actionSave_As"/>
+    <addaction name="menuOpen_Recent"/>
    </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
@@ -236,7 +243,7 @@
     <string>&amp;Reload File</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+R</string>
+    <string>F5</string>
    </property>
   </action>
   <action name="actionWord_wrap">
@@ -276,7 +283,7 @@
     <string>Auto Reload (tail -f)</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+R</string>
+    <string>Shift+F5</string>
    </property>
   </action>
   <action name="actionAuto_Reload_delay">
@@ -301,6 +308,11 @@
   <action name="actionFont">
    <property name="text">
     <string>Font</string>
+   </property>
+  </action>
+  <action name="actionOpen_Recent">
+   <property name="text">
+    <string>Open Recent ...</string>
    </property>
   </action>
  </widget>

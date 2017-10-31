@@ -283,7 +283,7 @@
     <string>Auto Reload (tail -f)</string>
    </property>
    <property name="shortcut">
-    <string>Shift+F5</string>
+    <string>F6</string>
    </property>
   </action>
   <action name="actionAuto_Reload_delay">

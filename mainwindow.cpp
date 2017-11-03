@@ -239,6 +239,7 @@ bool MainWindow::loadConfig()
 
     if(!line.isEmpty() && line != ""){
         QFile style(line.split("@@").at(0));
+        gsThemeFile=line.split("@@").at(0);
         if(style.exists() && style.open(QFile::ReadOnly)){
             QString styleContents = QLatin1String(style.readAll());
             style.close();

@@ -27,9 +27,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    giRecentFilePos = 0;
     giCurrentTabIndex = 0;
     giCurrentFileIndex = 0;
     giTotalTabs = 0;
+    giRecentAux = 0;
     gobFileNames.clear();
     giTabCharacters = 4;
     giTimerDelay = 250;
@@ -47,6 +49,8 @@ MainWindow::MainWindow(QWidget *parent) :
     gobMovie->setScaledSize(QSize(15,15));
     gsDefaultDir = QDir::homePath();
     giDefaultDirCounter = 0;
+
+
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
 
     QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
@@ -191,7 +195,8 @@ bool MainWindow::saveConfig()
     QString configText = gsThemeFile + "@@"
             + gobCurrentPlainTextEdit->fontInfo().family() + "@@"
             + QString::number(gobCurrentPlainTextEdit->fontInfo().style()) + "@@"
-            + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize());
+            + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize()) + "@@"
+            + QString::number(giRecentFilePos);
 
     for(int i = 0; i < gobRecentFiles.length(); i++){
 
@@ -226,12 +231,13 @@ bool MainWindow::loadConfig()
 
     lobValues = line.split("@@");
 
-    if(lobValues.length() >= 4){
+    if(lobValues.length() >= 5){
         gsSavedFont = line.split("@@").at(1);
         giSavedFontStyle = line.split("@@").at(2).toInt();
         giSavedFontPointSize = line.split("@@").at(3).toInt();
+        giRecentFilePos = line.split("@@").at(4).toInt();
         gobRecentFiles.clear();
-        for(int i = 4; i < line.split("@@").length(); i++){
+        for(int i = 5; i < line.split("@@").length(); i++){
             gobRecentFiles.append(line.split("@@").at(i));
         }
         this->addRecentFiles();
@@ -239,7 +245,7 @@ bool MainWindow::loadConfig()
 
     if(!line.isEmpty() && line != ""){
         QFile style(line.split("@@").at(0));
-        gsThemeFile=line.split("@@").at(0);
+        gsThemeFile = line.split("@@").at(0);
         if(style.exists() && style.open(QFile::ReadOnly)){
             QString styleContents = QLatin1String(style.readAll());
             style.close();
@@ -254,7 +260,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.5.0",
+    QMessageBox::about(this,"QNote 1.6.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -926,22 +932,37 @@ void MainWindow::on_statusBar_linkActivated(const QString &link)
 void MainWindow::addRecentFiles()
 {
     //qDebug() << "Begin addRecentFiles()";
+
     if(!gobFileNames.isEmpty()){
         QString lsFileName = gobFileNames.at(giCurrentFileIndex);
         loadFile(lsFileName);
     }
-    for(int i = 0; i < gobFileNames.length(); i++){
-        if(!gobRecentFiles.contains(gobFileNames.at(i))){
+
+    if(gobRecentFiles.size() >= 10) giRecentAux = 11;
+    if(giRecentFilePos >= 10) giRecentFilePos = 0;
+
+    for(int i = 0; i < gobFileNames.size(); i++){
+
+        if(!gobRecentFiles.contains(gobFileNames.at(i)) && giRecentAux <= 10) {
             gobRecentFiles.append(gobFileNames.at(i));
+            giRecentFilePos ++;
+            giRecentAux ++;
+            if(giRecentFilePos >= 10) giRecentFilePos = 0;
+        } else if(!gobRecentFiles.contains(gobFileNames.at(i))) {
+            gobRecentFiles.replace(giRecentFilePos,gobFileNames.at(i));
+            giRecentFilePos ++;
+            giRecentAux ++;
         }
     }
 
     ui->menuOpen_Recent->clear();
+
     for(int i = 0; i < gobRecentFiles.size(); i++){
         QAction *lobAction = new QAction(gobRecentFiles.at(i), this);
-        ui->menuOpen_Recent->addAction(lobAction);
+        ui->menuOpen_Recent->insertAction(ui->menuOpen_Recent->actions().at(i),lobAction);
     }
-   // qDebug() << "End addRecentFiles()";
+
+    //qDebug() << "End addRecentFiles()";
 }
 
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)

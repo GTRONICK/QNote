@@ -226,7 +226,7 @@ bool MainWindow::loadConfig()
 
     lobValues = line.split("@@");
 
-    if(lobValues.length() >= 5){
+    if(lobValues.length() >= 4){
         gsSavedFont = line.split("@@").at(1);
         giSavedFontStyle = line.split("@@").at(2).toInt();
         giSavedFontPointSize = line.split("@@").at(3).toInt();

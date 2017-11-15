@@ -119,6 +119,11 @@ void MainWindow::on_actionOpen_triggered()
                                               ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
     }
 
+    if(!gobFileNames.isEmpty()){
+        QString lsFileName = gobFileNames.at(giCurrentFileIndex);
+        loadFile(lsFileName);
+    }
+
     this->addRecentFiles();
 }
 
@@ -144,6 +149,12 @@ bool MainWindow::on_actionSave_As_triggered()
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
     setCurrentTabNameFromFile(lsFileName);
     this->setStatusBarTextAsLink(lsFileName);
+
+    if(!gobFileNames.contains(lsFileName)){
+        gobFileNames.append(lsFileName);
+        this->addRecentFiles();
+    }
+
     return true;
 }
 
@@ -163,10 +174,15 @@ bool MainWindow::on_actionSave_triggered()
         ui->indicatorLabel->clear();
         gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
         setCurrentTabNameFromFile(lsFileName);
+        if(!gobFileNames.contains(lsFileName)){
+            gobFileNames.append(lsFileName);
+            this->addRecentFiles();
+        }
 
     }else{
         if(!on_actionSave_As_triggered()) return false;
     }
+
 
     return true;
 }
@@ -186,25 +202,30 @@ bool MainWindow::saveFile(QString asFileName, QString asText)
     out << asText;
     file.close();
 
+
+
     return true;
 }
 
 bool MainWindow::saveConfig()
 {
 
-    QString configText = gsThemeFile + "@@"
-            + gobCurrentPlainTextEdit->fontInfo().family() + "@@"
-            + QString::number(gobCurrentPlainTextEdit->fontInfo().style()) + "@@"
-            + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize()) + "@@"
-            + QString::number(giRecentFilePos);
+    QString configText = "[THEME]\n";
+    configText = configText + "themeFile=" + gsThemeFile + "\n";
+    configText = configText + "[FONT]" + "\n";
+    configText = configText + "family=" + gobCurrentPlainTextEdit->fontInfo().family() + "\n";
+    configText = configText + "size=" + QString::number(gobCurrentPlainTextEdit->fontInfo().style()) + "\n";
+    configText = configText + "point=" + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize()) + "\n";
+    configText = configText + "[RECENTS]" + "\n";
+    configText = configText + "position=" + QString::number(giRecentFilePos) + "\n";
+    configText = configText + "recentFiles=";
 
-    for(int i = 0; i < gobRecentFiles.length(); i++){
-
-        configText = configText + "@@" + gobRecentFiles.at(i);
+    for(QString lsFile:gobRecentFiles){
+        configText = configText + "@@" + lsFile;
     }
 
     if(!saveFile("config.ini",configText)) return false;
-    return true;
+    else return true;
 }
 
 bool MainWindow::loadConfig()
@@ -223,37 +244,38 @@ bool MainWindow::loadConfig()
 
     QTextStream lobInputStream(lobConfigFile);
     while (!lobInputStream.atEnd()) {
-      line = lobInputStream.readLine();
+        line = lobInputStream.readLine();
+        if(line.startsWith("themeFile")) gsThemeFile = line.split("=").at(1);
+        else if(line.startsWith("family")) gsSavedFont = line.split("=").at(1);
+        else if(line.startsWith("size")) giSavedFontStyle = line.split("=").at(1).toInt();
+        else if(line.startsWith("point")) giSavedFontPointSize = line.split("=").at(1).toInt();
+        else if(line.startsWith("position")) giRecentFilePos = line.split("=").at(1).toInt();
+        else if(line.startsWith("recentFiles")) {
+            QStringList lobRecentList= line.split("@@");
+            lobRecentList.removeAt(0);
+            for(QString lsRecentFile:lobRecentList){
+                gobRecentFiles.append(lsRecentFile);
+            }
+            this->addRecentFiles();
+        }
+    }
+
+    if(gsSavedFont.isEmpty() || gsSavedFont == "") {
+        gsSavedFont = "Arial";
+        giSavedFontStyle = 0;
+        giSavedFontPointSize = 10;
+    }
+
+    QFile style(gsThemeFile);
+
+    if(style.exists() && style.open(QFile::ReadOnly)) {
+        QString styleContents = QLatin1String(style.readAll());
+        style.close();
+        this->setStyleSheet(styleContents);
     }
 
     lobInputStream.flush();
     lobConfigFile->close();
-
-    lobValues = line.split("@@");
-
-    if(lobValues.length() >= 5){
-        gsSavedFont = line.split("@@").at(1);
-        giSavedFontStyle = line.split("@@").at(2).toInt();
-        giSavedFontPointSize = line.split("@@").at(3).toInt();
-        giRecentFilePos = line.split("@@").at(4).toInt();
-        gobRecentFiles.clear();
-        for(int i = 5; i < line.split("@@").length(); i++){
-            gobRecentFiles.append(line.split("@@").at(i));
-        }
-        this->addRecentFiles();
-    }
-
-    if(!line.isEmpty() && line != ""){
-        QFile style(line.split("@@").at(0));
-        gsThemeFile = line.split("@@").at(0);
-        if(style.exists() && style.open(QFile::ReadOnly)){
-            QString styleContents = QLatin1String(style.readAll());
-            style.close();
-            this->setStyleSheet(styleContents);
-        }
-    }
-
-
 
     return true;
 }
@@ -475,6 +497,10 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
         for (int i = 0; i < urlList.size(); i++)
         {
             gobFileNames.append(urlList.at(i).toLocalFile());
+        }
+        if(!gobFileNames.isEmpty()){
+            QString lsFileName = gobFileNames.at(giCurrentFileIndex);
+            loadFile(lsFileName);
         }
         this->addRecentFiles();
         event->acceptProposedAction();
@@ -932,11 +958,6 @@ void MainWindow::on_statusBar_linkActivated(const QString &link)
 void MainWindow::addRecentFiles()
 {
     //qDebug() << "Begin addRecentFiles()";
-
-    if(!gobFileNames.isEmpty()){
-        QString lsFileName = gobFileNames.at(giCurrentFileIndex);
-        loadFile(lsFileName);
-    }
 
     if(gobRecentFiles.size() >= 10) giRecentAux = 11;
     if(giRecentFilePos >= 10) giRecentFilePos = 0;

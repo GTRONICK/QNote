@@ -112,12 +112,10 @@ void MainWindow::on_actionOpen_triggered()
 
     giCurrentFileIndex = 0;
 
-    if(gobFileNames.isEmpty()) {
-        gobFileNames = QFileDialog::getOpenFileNames(this
-                                              ,"Open File"
-                                              ,gsDefaultDir
-                                              ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
-    }
+    gobFileNames = QFileDialog::getOpenFileNames(this
+                                          ,"Open File"
+                                          ,gsDefaultDir
+                                          ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
 
     if(!gobFileNames.isEmpty()){
         QString lsFileName = gobFileNames.at(giCurrentFileIndex);
@@ -282,7 +280,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.6.1",
+    QMessageBox::about(this,"QNote 1.6.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -958,6 +956,11 @@ void MainWindow::on_statusBar_linkActivated(const QString &link)
 void MainWindow::addRecentFiles()
 {
     //qDebug() << "Begin addRecentFiles()";
+
+//    if(!gobFileNames.isEmpty()){
+//        QString lsFileName = gobFileNames.at(giCurrentFileIndex);
+//        loadFile(lsFileName);
+//    }
 
     if(gobRecentFiles.size() >= 10) giRecentAux = 11;
     if(giRecentFilePos >= 10) giRecentFilePos = 0;

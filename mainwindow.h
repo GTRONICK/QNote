@@ -97,6 +97,7 @@ private:
     int giTimerDelay;               //Tiempo de espera en milisegundos para la recarga automática
     int giRecentFilePos;            //Contador de posicion del archivo actual
     int giRecentAux;
+    int giOpenWithFlag;
     bool gbIsOpenedFile;            //Bandera que indica si se está abriendo un archivo
     bool gbIsReloadFile;            //Bandera que indica si un archivo se ha recargado
     bool gbIsAutoreloadEnabled;     //Bandera que indica si la recarga automatica esta activa

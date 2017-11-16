@@ -32,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     giCurrentFileIndex = 0;
     giTotalTabs = 0;
     giRecentAux = 0;
+	giOpenWithFlag = 0;
     gobFileNames.clear();
     giTabCharacters = 4;
     giTimerDelay = 250;
@@ -112,15 +113,19 @@ void MainWindow::on_actionOpen_triggered()
 
     giCurrentFileIndex = 0;
 
-    gobFileNames = QFileDialog::getOpenFileNames(this
-                                          ,"Open File"
-                                          ,gsDefaultDir
-                                          ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
+    if(this->giOpenWithFlag == 0){
+    	gobFileNames = QFileDialog::getOpenFileNames(this
+                                          	,"Open File"
+                                          	,gsDefaultDir
+                                          	,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)"));
+	}
 
     if(!gobFileNames.isEmpty()){
         QString lsFileName = gobFileNames.at(giCurrentFileIndex);
         loadFile(lsFileName);
     }
+
+	this->giOpenWithFlag = 0;
 
     this->addRecentFiles();
 }
@@ -635,6 +640,7 @@ void MainWindow::loadFile(QString asFileName)
 void MainWindow::setFileNameFromCommandLine(QStringList asFileNames)
 {
     gobFileNames = asFileNames;
+	 this->giOpenWithFlag = 1;
     this->on_actionOpen_triggered();
 }
 

@@ -159,6 +159,7 @@
     <addaction name="actionClose_Tab"/>
     <addaction name="actionReload_file"/>
     <addaction name="actionAuto_Reload_tail_f"/>
+    <addaction name="actionErase_and_save"/>
     <addaction name="separator"/>
     <addaction name="actionFind_Replace"/>
     <addaction name="actionGo_to_line"/>
@@ -174,6 +175,8 @@
     <addaction name="actionAuto_Reload_delay"/>
     <addaction name="actionFont"/>
     <addaction name="actionAlways_on_top"/>
+    <addaction name="actionReset_alerts"/>
+    <addaction name="actionSet_Maximun_file_size"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuTools"/>
@@ -313,6 +316,24 @@
   <action name="actionOpen_Recent">
    <property name="text">
     <string>Open Recent ...</string>
+   </property>
+  </action>
+  <action name="actionErase_and_save">
+   <property name="text">
+    <string>Erase, save and Auto Reload</string>
+   </property>
+   <property name="shortcut">
+    <string>F7</string>
+   </property>
+  </action>
+  <action name="actionReset_alerts">
+   <property name="text">
+    <string>Reset alerts</string>
+   </property>
+  </action>
+  <action name="actionSet_Maximun_file_size">
+   <property name="text">
+    <string>Set Maximun file size</string>
    </property>
   </action>
  </widget>

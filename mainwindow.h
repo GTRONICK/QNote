@@ -1,6 +1,5 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-#define MAX_SIZE 20000000.0
 
 #include <QMainWindow>
 #include <QThread>
@@ -60,6 +59,7 @@ private slots:
     void on_actionFont_triggered();
     void on_actionAlways_on_top_triggered(bool checked);
     void main_slot_showHideMenuBar();
+    void main_slot_dontShowAgain(bool abValue);
 
     void main_slot_gr1();
     void main_slot_gr2();
@@ -76,6 +76,12 @@ private slots:
     void main_slot_resetStatusBarText();
     void on_statusBar_linkActivated(const QString &link);
     void main_slot_loadFileFromAction(QAction *aobAction);
+
+    void on_actionErase_and_save_triggered();
+
+    void on_actionReset_alerts_triggered();
+
+    void on_actionSet_Maximun_file_size_triggered();
 
 private:
     void addRecentFiles();
@@ -98,6 +104,8 @@ private:
     int giRecentFilePos;            //Contador de posicion del archivo actual
     int giRecentAux;
     int giOpenWithFlag;
+    float gfMaxFileSize;
+    bool gbShowEraseAndSaveMessageBox;  //Bandera que indica se se muestra o no el QMessageBox de Borrado, guardado y recarga.
     bool gbIsOpenedFile;            //Bandera que indica si se está abriendo un archivo
     bool gbIsReloadFile;            //Bandera que indica si un archivo se ha recargado
     bool gbIsAutoreloadEnabled;     //Bandera que indica si la recarga automatica esta activa

@@ -34,7 +34,7 @@ void CustomTextEdit::highlightCurrentLine()
 
         QTextEdit::ExtraSelection selection;
 
-        QColor lineColor = QColor(this->palette().background().color().darker(130));
+        QColor lineColor = QColor(this->palette().background().color().darker(110));
 
         selection.format.setBackground(lineColor);
         selection.format.setProperty(QTextFormat::FullWidthSelection, true);

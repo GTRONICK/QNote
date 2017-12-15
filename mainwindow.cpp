@@ -62,13 +62,11 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+2")),this);
     QShortcut *gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+3")),this);
     QShortcut *gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+4")),this);
-    QShortcut *gr5_shortcut = new QShortcut(QKeySequence(tr("Ctrl+5")),this);
 
-    QShortcut *paste_gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+1")),this);
-    QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+2")),this);
-    QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+3")),this);
-    QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+4")),this);
-    QShortcut *paste_gr5_shortcut = new QShortcut(QKeySequence(tr("Ctrl+Shift+5")),this);
+    QShortcut *paste_gr1_shortcut = new QShortcut(QKeySequence(tr("F1")),this);
+    QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("F2")),this);
+    QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("F3")),this);
+    QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
 
     this->move(QApplication::desktop()->screen()->rect().center() - this->rect().center());
 
@@ -82,16 +80,17 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(worker,SIGNAL(worker_signal_appendText(QString)),this,SLOT(main_slot_appendText(QString)));
     connect(gobTimer, SIGNAL(timeout()), this, SLOT(on_actionReload_file_triggered()));
     connect(menuBar_shortcut,SIGNAL(activated()),this,SLOT(main_slot_showHideMenuBar()));
+
     connect(gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr1()));
     connect(gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr2()));
     connect(gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr3()));
     connect(gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr4()));
-    connect(gr5_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr5()));
+
     connect(paste_gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr1()));
     connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
     connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
     connect(paste_gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr4()));
-    connect(paste_gr5_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr5()));
+
     connect(workerThread,SIGNAL(finished()),worker,SLOT(deleteLater()));
     connect(workerThread,SIGNAL(finished()),workerThread,SLOT(deleteLater()));
     worker->moveToThread(workerThread);
@@ -360,7 +359,7 @@ void MainWindow::on_actionReload_file_triggered()
     //qDebug() << "Begin on_actionReload_file_triggered";
     QString lsFileName = gobHash.value(giCurrentTabIndex);
 
-    if(checkFileExist(lsFileName)){
+    if(checkFileExist(lsFileName) && checkFileSize(lsFileName) == QMessageBox::Ok){
 
         gbIsReloadFile = true;
 
@@ -591,6 +590,23 @@ bool MainWindow::checkFileExist(QString asFileName)
     return false;
 }
 
+int MainWindow::checkFileSize(QString asFileName)
+{
+    double liFileSize = gobFile->size();
+    int returnValue = QMessageBox::Ok;
+
+    if(liFileSize/1000000.00 > (gfMaxFileSize)){
+        QMessageBox msgBox(this);
+        msgBox.setWindowTitle("Maximum file size exceeded");
+        msgBox.setText("The file: \n" + asFileName + "\nIs too big. Do you want to open it anyway?");
+        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
+        msgBox.setDefaultButton(QMessageBox::Ok);
+        returnValue = msgBox.exec();
+    }
+
+    return returnValue;
+}
+
 void MainWindow::closeTab(int index)
 {
     QFile *lobFile;
@@ -630,21 +646,16 @@ void MainWindow::loadFile(QString asFileName)
     //qDebug() << "Begin loadFile, asFileName: " << asFileName;
 
     int ret = QMessageBox::Ok;
+    gobFile = new QFile(asFileName);
 
     if(!asFileName.isEmpty()){
-        gobFile = new QFile(asFileName);
-        double liFileSize = gobFile->size();
         if(gobFile->exists()){
-            if(liFileSize/1000000.00 > (gfMaxFileSize)){
-                QMessageBox msgBox(this);
-                msgBox.setWindowTitle("Maximum file size exceeded");
-                msgBox.setText("The file: \n" + asFileName + "\nIs too big. Do you want to open it anyway?");
-                msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-                msgBox.setDefaultButton(QMessageBox::Ok);
-                ret = msgBox.exec();
-            }
+            ret = checkFileSize(asFileName);
             if(ret == QMessageBox::Ok){
-                on_actionNew_Tab_triggered();
+                if(gobIsModifiedTextHash.value(giCurrentTabIndex) || (gobHash.value(giCurrentTabIndex) != NULL && gobHash.value(giCurrentTabIndex) != "")){
+                    on_actionNew_Tab_triggered();
+                }
+
                 gobHash.insert(giCurrentTabIndex,asFileName);
                 setCurrentTabNameFromFile(asFileName);
                 main_slot_tabChanged(giCurrentTabIndex);
@@ -946,23 +957,6 @@ void MainWindow::main_slot_gr4()
 }
 
 /**
-  Asigna el texto seleccionado al buffer 5. Si no hay nada
-  seleccionado, se limpia el buffer.
-*/
-void MainWindow::main_slot_gr5()
-{
-    gsGr5 = gobCurrentPlainTextEdit->textCursor().selectedText();
-    if(!gsGr5.isEmpty()){
-        ui->statusBar->setText("Group #5 assigned.");
-    }
-    else {
-        ui->statusBar->setText("Group #5 cleared.");
-    }
-
-    QTimer::singleShot(1500,this,SLOT(main_slot_resetStatusBarText()));
-}
-
-/**
   Pega el texto contenido en el buffer 1
 */
 void MainWindow::main_slot_pasteGr1()
@@ -992,14 +986,6 @@ void MainWindow::main_slot_pasteGr3()
 void MainWindow::main_slot_pasteGr4()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr4);
-}
-
-/**
-  Pega el texto contenido en el buffer 5
-*/
-void MainWindow::main_slot_pasteGr5()
-{
-    gobCurrentPlainTextEdit->textCursor().insertText(gsGr5);
 }
 
 /**
@@ -1108,3 +1094,5 @@ void MainWindow::on_actionSet_Maximun_file_size_triggered()
                                  tr("Mega Bytes:"),gfMaxFileSize, 0.01, 7, 2, &lbOk);
     if (lbOk) gfMaxFileSize = liMaxFileSize;
 }
+
+

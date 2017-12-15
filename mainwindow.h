@@ -65,13 +65,11 @@ private slots:
     void main_slot_gr2();
     void main_slot_gr3();
     void main_slot_gr4();
-    void main_slot_gr5();
 
     void main_slot_pasteGr1();
     void main_slot_pasteGr2();
     void main_slot_pasteGr3();
     void main_slot_pasteGr4();
-    void main_slot_pasteGr5();
 
     void main_slot_resetStatusBarText();
     void on_statusBar_linkActivated(const QString &link);
@@ -88,6 +86,7 @@ private:
     void setCurrentTabNameFromFile(QString asFileName);
     void checkIfUnsaved(int index);
     bool checkFileExist(QString asFileName);
+    int checkFileSize(QString asFileName);
     void closeTab(int index);
     void loadFile(QString asFileName);
     bool saveFile(QString asFileName, QString asText);

@@ -1096,3 +1096,18 @@ void MainWindow::on_actionSet_Maximun_file_size_triggered()
 }
 
 
+
+void MainWindow::on_actionTo_UPERCASE_triggered()
+{
+    QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
+    QString lsText = lobCursor.selectedText().toUpper();
+    lobCursor.insertText(lsText);
+
+}
+
+void MainWindow::on_actionTo_lowercase_triggered()
+{
+    QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
+    QString lsText = lobCursor.selectedText().toLower();
+    lobCursor.insertText(lsText);
+}

@@ -178,7 +178,15 @@
     <addaction name="actionReset_alerts"/>
     <addaction name="actionSet_Maximun_file_size"/>
    </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionTo_UPERCASE"/>
+    <addaction name="actionTo_lowercase"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuEdit"/>
    <addaction name="menuTools"/>
    <addaction name="menuSettings"/>
    <addaction name="menuAbout"/>
@@ -334,6 +342,22 @@
   <action name="actionSet_Maximun_file_size">
    <property name="text">
     <string>Set Maximun file size</string>
+   </property>
+  </action>
+  <action name="actionTo_UPERCASE">
+   <property name="text">
+    <string>UPERCASE</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionTo_lowercase">
+   <property name="text">
+    <string>lowercase</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+U</string>
    </property>
   </action>
  </widget>

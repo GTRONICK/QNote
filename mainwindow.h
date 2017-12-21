@@ -81,6 +81,10 @@ private slots:
 
     void on_actionSet_Maximun_file_size_triggered();
 
+    void on_actionTo_UPERCASE_triggered();
+
+    void on_actionTo_lowercase_triggered();
+
 private:
     void addRecentFiles();
     void setCurrentTabNameFromFile(QString asFileName);

@@ -112,16 +112,15 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 
     }else if(gbSearchClicked){
         gbSearchClicked = false;
-
+        giOcurrencesFound = 0;
+        gsFoundText = "";
         QColor lineColor = QColor(Qt::yellow).lighter(100);
         selection.format.setBackground(lineColor);
         selection.format.setForeground(QColor(0,0,0));
         gobTextEdit->extraSelections().clear();
 
         if(gsFoundText != ui->seachDialog_searchLineEdit->text()){
-            giOcurrencesFound = 0;
             giLogCursorPos = 0;
-            //qDebug() << "searchDialog: Emmitting resetCursor SIGNAL";
             emit(search_signal_resetCursor());
             gsFoundText = ui->seachDialog_searchLineEdit->text();
             while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
@@ -131,7 +130,6 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
             }
             extraSelections.append(selection);
             gobTextEdit->setExtraSelections(extraSelections);
-            //qDebug() << "searchDialog: Emmitting resetCursor SIGNAL";
             emit(search_signal_resetCursor());
             if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
                 ui->searchDialog_replaceButton->setEnabled(true);
@@ -140,7 +138,6 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
             ui->ocurrencesCounterLabel->setText(QString("%1/%2").arg(giLogCursorPos).arg(giOcurrencesFound));
         }else{
             if(!gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
-                //qDebug() << "searchDialog: Emmitting resetCursor SIGNAL";
                 emit(search_signal_resetCursor());
                 giLogCursorPos = 0;
                 if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){

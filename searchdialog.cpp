@@ -112,8 +112,6 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 
     }else if(gbSearchClicked){
         gbSearchClicked = false;
-        giOcurrencesFound = 0;
-        gsFoundText = "";
         QColor lineColor = QColor(Qt::yellow).lighter(100);
         selection.format.setBackground(lineColor);
         selection.format.setForeground(QColor(0,0,0));
@@ -121,6 +119,7 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 
         if(gsFoundText != ui->seachDialog_searchLineEdit->text()){
             giLogCursorPos = 0;
+            giOcurrencesFound = 0;
             emit(search_signal_resetCursor());
             gsFoundText = ui->seachDialog_searchLineEdit->text();
             while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){

@@ -15,6 +15,7 @@ public:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
+    void keyPressEvent(QKeyEvent *e);
 
 public slots:
     void highlightCurrentLine();

@@ -852,8 +852,8 @@ void MainWindow::on_actionFont_triggered()
 
 /**
   Ajusta el comportamiento de la ventana principal, de modo que
-  la mantiene encima de las demás en caso de activarse esta opcion.
-  @param checked True: Mantiene la ventana encima de las demás. False:
+  la mantiene encima de las demÃ¡s en caso de activarse esta opcion.
+  @param checked True: Mantiene la ventana encima de las demÃ¡s. False:
   La ventana se oculta cuando pierde el foco.
 */
 void MainWindow::on_actionAlways_on_top_triggered(bool checked)
@@ -869,8 +869,8 @@ void MainWindow::on_actionAlways_on_top_triggered(bool checked)
 }
 
 /**
-  Muestra la barra de menú en caso de que esta se
-  encuentre oculta. La oculta si está visible.
+  Muestra la barra de menÃº en caso de que esta se
+  encuentre oculta. La oculta si estÃ¡ visible.
 */
 void MainWindow::main_slot_showHideMenuBar()
 {
@@ -990,7 +990,7 @@ void MainWindow::main_slot_pasteGr4()
 
 /**
   Retorna el texto del status bar a su estado anterior. Se usa
-  después de haber mostrado un texto temporalmente.
+  despuÃ©s de haber mostrado un texto temporalmente.
 */
 void MainWindow::main_slot_resetStatusBarText()
 {
@@ -998,7 +998,7 @@ void MainWindow::main_slot_resetStatusBarText()
 }
 
 /**
-  Función que se dispara cuando se hace click en un enlace, en la barra de estado.
+  FunciÃ³n que se dispara cuando se hace click en un enlace, en la barra de estado.
   Abre el directorio padre del archivo especificado en el texto.
   @param link - Texto del enlace
 */

@@ -1,6 +1,10 @@
 #include "customtextedit.h"
 #include <QMimeData>
+#include <QApplication>
+#include <QMainWindow>
 #include <QDebug>
+#include <QRegularExpression>
+#include <QTextBlock>
 
 CustomTextEdit::CustomTextEdit()
 {
@@ -53,4 +57,63 @@ void CustomTextEdit::cte_slot_disableHighLight()
 void CustomTextEdit::cte_slot_enableHighLight()
 {
     giFlag = 1;
+}
+
+void CustomTextEdit::keyPressEvent(QKeyEvent *e){
+
+    QTextCursor cursor = this->textCursor();
+
+    if(e->key() == Qt::Key_Tab && cursor.hasSelection()){
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd();
+
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        QTextBlock endBlock = cursor.block();
+
+        cursor.setPosition(start, QTextCursor::KeepAnchor);
+        QTextBlock block = cursor.block();
+
+        for(; block.isValid() && !(endBlock < block); block = block.next())
+        {
+            if (!block.isValid())
+                continue;
+
+            cursor.movePosition(QTextCursor::StartOfLine);
+            cursor.clearSelection();
+            cursor.insertText("\t");
+            cursor.movePosition(QTextCursor::NextBlock);
+        }
+
+    } else if(e->key() == Qt::Key_Backtab){
+
+        int start = cursor.selectionStart();
+        int end = cursor.selectionEnd();
+
+        cursor.setPosition(end, QTextCursor::KeepAnchor);
+        QTextBlock endBlock = cursor.block();
+
+        cursor.setPosition(start, QTextCursor::KeepAnchor);
+        QTextBlock block = cursor.block();
+
+        for(; block.isValid() && !(endBlock < block); block = block.next())
+        {
+            if (!block.isValid())
+                continue;
+
+//            qDebug() << QString::number(cursor.position());
+//            qDebug() << QString::number(cursor.positionInBlock());
+
+
+            if(cursor.positionInBlock() >= 1) {
+                cursor.movePosition(QTextCursor::StartOfLine);
+                cursor.clearSelection();
+                cursor.deleteChar();
+                cursor.movePosition(QTextCursor::NextBlock);
+            }
+        }
+
+    } else {
+        QPlainTextEdit::keyPressEvent(e);
+    }
 }

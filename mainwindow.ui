@@ -140,7 +140,9 @@
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
+    <addaction name="actionNew_Tab"/>
     <addaction name="separator"/>
+    <addaction name="actionClose_Tab"/>
     <addaction name="actionSave_As"/>
     <addaction name="menuOpen_Recent"/>
    </widget>
@@ -155,8 +157,6 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
-    <addaction name="actionNew_Tab"/>
-    <addaction name="actionClose_Tab"/>
     <addaction name="actionReload_file"/>
     <addaction name="actionAuto_Reload_tail_f"/>
     <addaction name="actionErase_and_save"/>

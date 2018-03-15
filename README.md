@@ -76,7 +76,7 @@ Click on the status bar, at the file path location to open the containing folder
 ## IN THIS VERSION:
 
   Now, the reload is made with F5, and auto reload with F6.
-  New feature!: *Erase and Auto Reload* with F7 Will erase the current file contents, save it and then, activate auto reload. So, you will see the newest data being printed in your file without reloading the whole file.
+  New feature!: ***Erase and Auto Reload*** with F7 Will erase the current file contents, save it and then, activate auto reload. So, you will see the newest data being printed in your file without reloading the whole file.
   
   Added Recent files menu.
   

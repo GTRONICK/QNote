@@ -60,13 +60,11 @@ Go to the Settings menu and check the Always on Top check box. This change will 
 ## ADVANCED USAGE:
 
 **16. Group control:**		
-This feature allow you to assign up to 5 buffers to hold text. Press Ctrl + <1-5> to assign the desired group, for example:
+This feature allow you to assign up to 4 buffers to hold text. Press Ctrl + <1-4> to assign the desired group, for example:
 
 Ctrl +1, will assign the current selected text, to the buffer 1; If no text is selected, the buffer will be cleared.
 
-To paste a buffer content at the current cursor position, press Ctrl + Shift + <1-5>.
-
-Think in this as a multi clipboard.
+To paste a buffer content at the current cursor position, press F<1-4>.
 
 **17. Open the file's containing folder:**		
 Click on the status bar, at the file path location to open the containing folder.

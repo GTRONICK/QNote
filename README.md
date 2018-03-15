@@ -7,7 +7,9 @@ Lightweight yet powerful and fast QT Text editor
 
 # HOW TO INSTALL:
 
-Just decompress the zip file and run QNote.exe. If you have already downloaded QChrono, or QBack, or an older version of QNote, you can extract or download the QNote.exe (QNote_v1.5.0_OnlyExe.zip) file and place it, into the QChrono's or previous version folder. 
+Just decompress the zip file and run QNote.exe. If you have already downloaded QChrono, or QBack, or an older version of QNote, you can extract or download the QNote.exe file and place it, into the QChrono's or previous version folder. 
+
+**WARNING!**: If this is not the first time you install or extract the files, please remove the config.ini file first before lauch the application.
 
 # HOW TO USE:
 
@@ -30,7 +32,7 @@ Press Ctrl + W to close the current Tab, or press the close button in the desire
 To reload the current file, press F5, or go to the Tools menu and click on Reload File.
 
 **7. Auto Reload the current File:**    
-If you want to reload the current file automatically after some delay in milliseconds, pres Shift + F5, or go to the Tools menu, and select Auto Reload.
+If you want to reload the current file automatically after some delay in milliseconds, pres F6, or go to the Tools menu, and select Auto Reload.
 
 **8. To Search or replace text:**   
 Press Ctrl + F, or go to the Tools menu and click on Find & Replace.
@@ -60,21 +62,24 @@ Go to the Settings menu and check the Always on Top check box. This change will 
 ## ADVANCED USAGE:
 
 **16. Group control:**		
-This feature allow you to assign up to 4 buffers to hold text. Press Ctrl + <1-4> to assign the desired group, for example:
+This feature allow you to assign up to 5 buffers to hold text. Press Ctrl + <1-4> to assign the desired group, for example:
 
 Ctrl +1, will assign the current selected text, to the buffer 1; If no text is selected, the buffer will be cleared.
 
-To paste a buffer content at the current cursor position, press F<1-4>.
+To paste a buffer content at the current cursor position or selection, press F <1-4>.
+
+Think in this as a multi clipboard.
 
 **17. Open the file's containing folder:**		
 Click on the status bar, at the file path location to open the containing folder.
 
 ## IN THIS VERSION:
 
-  Now, the reload is made with F5, and auto reload with Shift + F5.
+  Now, the reload is made with F5, and auto reload with F6.
+  New feature!:
+  *Erase and Auto Reload* with F7 Will erase the current file contents, save it and then, activate auto reload. So, you will see the newest data being printed in your file without reloading the whole file.
   Added Recent files menu.
-  Improved some code for opening and dragging files.
-  Added the first release for Windows (Linux release comming soon!).
+  Improved recent files code and added a 20 files limit for now.
 
 ------------------------------------------
 Send any suggestion to contact@gtronick.com, or go to gtronick.com and fill the form in the contact section.

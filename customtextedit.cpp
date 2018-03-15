@@ -101,10 +101,6 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             if (!block.isValid())
                 continue;
 
-//            qDebug() << QString::number(cursor.position());
-//            qDebug() << QString::number(cursor.positionInBlock());
-
-
             if(cursor.positionInBlock() >= 1) {
                 cursor.movePosition(QTextCursor::StartOfLine);
                 cursor.clearSelection();

@@ -1,10 +1,7 @@
 #include "worker.h"
 #include <QTextStream>
 
-Worker::Worker(QObject *parent) : QObject(parent)
-{
-
-}
+Worker::Worker(QObject *parent) : QObject(parent){}
 
 void Worker::worker_slot_loadFile(QFile *file)
 {

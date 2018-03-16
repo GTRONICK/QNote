@@ -56,7 +56,6 @@ MainWindow::MainWindow(QWidget *parent) :
     gsDefaultDir = QDir::homePath();
     giDefaultDirCounter = 0;
 
-
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
 
     QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
@@ -68,6 +67,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("F2")),this);
     QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("F3")),this);
     QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
+
+    QShortcut *openFileLocation_shortCut = new QShortcut(QKeySequence(tr("F9")),this);
 
     this->move(QApplication::desktop()->screen()->rect().center() - this->rect().center());
 
@@ -91,6 +92,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
     connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
     connect(paste_gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr4()));
+
+    connect(openFileLocation_shortCut,SIGNAL(activated()),this,SLOT(main_slot_openFileLocation()));
 
     connect(workerThread,SIGNAL(finished()),worker,SLOT(deleteLater()));
     connect(workerThread,SIGNAL(finished()),workerThread,SLOT(deleteLater()));
@@ -145,6 +148,7 @@ bool MainWindow::on_actionSave_As_triggered()
                                               ,tr("Text Files (*.txt);;All Files (*)"));
 
     giCurrentTabIndex = ui->tabWidget->currentIndex();
+
     if(gobHash.value(giCurrentTabIndex) != lsFileName){
         gobHash.insert(giCurrentTabIndex,lsFileName);
     }
@@ -295,7 +299,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.6.0",
+    QMessageBox::about(this,"QNote 1.7.0",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -354,7 +358,6 @@ void MainWindow::on_actionNew_Tab_triggered()
 
 void MainWindow::on_actionReload_file_triggered()
 {
-    //qDebug() << "Begin on_actionReload_file_triggered";
     QString lsFileName = gobHash.value(giCurrentTabIndex);
 
     if(checkFileExist(lsFileName) && checkFileSize(lsFileName) == QMessageBox::Ok){
@@ -385,7 +388,6 @@ void MainWindow::on_actionReload_file_triggered()
             ui->actionAuto_Reload_tail_f->setChecked(false);
         }
     }
-    //qDebug() << "End on_actionReload_file_triggered";
 }
 
 void MainWindow::on_actionGo_to_line_triggered()
@@ -607,6 +609,7 @@ void MainWindow::closeTab(int index)
     QFile *lobFile;
 
     if(giTotalTabs > 1){
+
         lobFile = new QFile(gobHash.value(index));
 
         gobHash.remove(index);
@@ -629,10 +632,14 @@ void MainWindow::closeTab(int index)
         this->ui->tabWidget->removeTab(index);
 
     }else{
-        if(!saveConfig()){
-            QMessageBox::critical(this,"Warning!","The config file could not be saved");
-        }
-        QApplication::quit();
+
+        giTotalTabs = 0;
+        giCurrentTabIndex = 0;
+        giCurrentFileIndex = 0;
+        gobIsModifiedTextHash.clear();
+        gobHash.clear();
+        on_actionNew_Tab_triggered();
+        this->ui->tabWidget->removeTab(index);
     }
 }
 
@@ -972,6 +979,13 @@ void MainWindow::main_slot_pasteGr3()
 void MainWindow::main_slot_pasteGr4()
 {
     gobCurrentPlainTextEdit->textCursor().insertText(gsGr4);
+}
+
+void MainWindow::main_slot_openFileLocation()
+{
+    if(!gobHash.value(giCurrentTabIndex).isNull() && !gobHash.value(giCurrentTabIndex).isEmpty()) {
+        on_statusBar_linkActivated(gobHash.value(giCurrentTabIndex));
+    }
 }
 
 /**

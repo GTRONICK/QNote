@@ -1,12 +1,14 @@
 QWidget {
 	background-color:rgb(0, 0, 0);
-	color: rgb(255, 255, 255);
+	color: rgb(240, 240, 240);
 	border-color: rgb(58, 58, 58);
 }
 
 QPlainTextEdit {
 	background-color:rgb(0, 0, 0);
 	color: rgb(240, 240, 240);
+	selection-background-color: rgb(255, 153, 0);
+	selection-color: rgb(0, 0, 0);
 }
 
 QTabWidget::pane {

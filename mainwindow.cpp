@@ -202,7 +202,10 @@ bool MainWindow::saveFile(QString asFileName, QString asText)
 {
     QFile file(asFileName);
 
-    if(asFileName.isEmpty()) return false;
+    if(asFileName.isEmpty()){
+
+        return false;
+    }
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         QMessageBox::critical(this,"Error","File could not be opened");
@@ -239,8 +242,12 @@ bool MainWindow::saveConfig()
         configText = configText + "@@" + lsFile;
     }
 
-    if(!saveFile("config.ini",configText)) return false;
-    else return true;
+    if(!saveFile("config.ini",configText)) {
+        QMessageBox::critical(this,"ERROR","Can't save configuration file!");
+        return false;
+    } else {
+        return true;
+    }
 }
 
 bool MainWindow::loadConfig()
@@ -706,6 +713,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
         }
     }
     if(lbClose){
+        saveConfig();
         event->accept();
     }else{
         event->ignore();

@@ -14,7 +14,6 @@ void Worker::worker_slot_loadFile(QFile *file)
     }
     in.flush();
     file->close();
-
     text.remove(text.lastIndexOf("\n"),1);
     emit worker_signal_appendText(text);
 }

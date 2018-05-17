@@ -31,6 +31,8 @@ signals:
     void main_signal_setTextEdit(QPlainTextEdit *textdit);
     void main_signal_loadFile(QFile *file);
     void main_signal_refreshHighlight();
+    void main_signal_tailFile(QFile *file);
+    void main_signal_setCurrentFileSize(int aiFileSize);
 
 private slots:
     void on_actionOpen_triggered();
@@ -48,6 +50,7 @@ private slots:
     void main_slot_resetCursor();
     void on_actionFind_Replace_triggered();
     void main_slot_appendText(QString asText);
+    void main_slot_insertText(QString asText);
     void main_slot_processDropEvent(QDropEvent *event);
     void on_actionReload_file_triggered();
     void on_actionWord_wrap_toggled(bool arg1);
@@ -75,12 +78,15 @@ private slots:
     void main_slot_resetStatusBarText();
     void on_statusBar_linkActivated(const QString &link);
     void main_slot_loadFileFromAction(QAction *aobAction);
+    void main_slot_openFileLocation();
 
     void on_actionErase_and_save_triggered();
     void on_actionReset_alerts_triggered();
     void on_actionSet_Maximun_file_size_triggered();
     void on_actionTo_UPERCASE_triggered();
     void on_actionTo_lowercase_triggered();
+
+    void main_slot_tailFile();
 
 private:
     void addRecentFiles();

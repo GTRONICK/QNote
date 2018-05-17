@@ -458,8 +458,13 @@ void MainWindow::main_slot_tabChanged(int aIndex)
         this->ui->indicatorLabel->setMovie(gobMovie);
         gobTimer->start(giTimerDelay);
         ui->indicatorLabel->movie()->start();
+        gobCurrentPlainTextEdit->setReadOnly(true);
+        lockTextEditor();
+        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
     }else{
         if(!gbIsAutoreloadEnabled) ui->indicatorLabel->clear();
+        gobCurrentPlainTextEdit->setReadOnly(false);
+        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::TextEditorInteraction);
     }
 }
 
@@ -521,10 +526,11 @@ void MainWindow::main_slot_insertText(QString asText)
     if(lobBar->value() == lobBar->maximum()) {
 //        qDebug() << "Scroll maximum";
         gobCurrentPlainTextEdit->insertPlainText(asText);
-        QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
-        lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
-        gobCurrentPlainTextEdit->setTextCursor(lobCursor);
-        lobBar->setValue(lobBar->maximum());
+//        QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
+//        lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
+//        gobCurrentPlainTextEdit->setTextCursor(lobCursor);
+//        lobBar->setValue(lobBar->maximum());
+        lockTextEditor();
     } else {
 //        qDebug() << "Scroll free";
         gobCurrentPlainTextEdit->insertPlainText(asText);
@@ -819,16 +825,13 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         gobTimer->start(giTimerDelay);
         ui->indicatorLabel->movie()->start();
         gobCurrentPlainTextEdit->setReadOnly(true);
-        QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
-        lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
-        gobCurrentPlainTextEdit->setTextCursor(lobCursor);
-        gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());
+        lockTextEditor();
         gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
     }else{
         gbIsAutoreloadEnabled = false;
         gbIsReloadFile = false;
         gobCurrentPlainTextEdit->setReadOnly(false);
-        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::TextEditable);
+        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::TextEditorInteraction);
         ui->indicatorLabel->setToolTip("");
         if(gobTimer->isActive()) gobTimer->stop();
         if(ui->indicatorLabel->movie() != NULL) ui->indicatorLabel->movie()->stop();
@@ -1178,4 +1181,12 @@ void MainWindow::main_slot_tailFile()
             ui->actionAuto_Reload_tail_f->setChecked(false);
         }
     }
+}
+
+void MainWindow::lockTextEditor() {
+
+    QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
+    lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
+    gobCurrentPlainTextEdit->setTextCursor(lobCursor);
+    gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());
 }

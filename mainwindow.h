@@ -25,6 +25,7 @@ public:
     void dragEnterEvent(QDragEnterEvent *event);
     void setFileNameFromCommandLine(QStringList asFileNames);
     void setStatusBarTextAsLink(QString asText);
+    void lockTextEditor();
     ~MainWindow();
 
 signals:

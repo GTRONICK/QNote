@@ -160,6 +160,7 @@
     <addaction name="actionReload_file"/>
     <addaction name="actionAuto_Reload_tail_f"/>
     <addaction name="actionErase_and_save"/>
+    <addaction name="actionErase_and_save_2"/>
     <addaction name="separator"/>
     <addaction name="actionFind_Replace"/>
     <addaction name="actionGo_to_line"/>
@@ -358,6 +359,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+U</string>
+   </property>
+  </action>
+  <action name="actionErase_and_save_2">
+   <property name="text">
+    <string>Erase and save</string>
+   </property>
+   <property name="shortcut">
+    <string>F8</string>
    </property>
   </action>
  </widget>

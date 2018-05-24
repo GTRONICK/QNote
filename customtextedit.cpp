@@ -101,12 +101,9 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             if (!block.isValid())
                 continue;
 
-            if(cursor.positionInBlock() >= 1) {
-                cursor.movePosition(QTextCursor::StartOfLine);
-                cursor.clearSelection();
-                cursor.deleteChar();
-                cursor.movePosition(QTextCursor::NextBlock);
-            }
+            cursor.setPosition(block.position() + 1, QTextCursor::KeepAnchor);
+            cursor.clearSelection();
+            if(block.text().startsWith("\t")) cursor.deletePreviousChar();
         }
 
     } else {

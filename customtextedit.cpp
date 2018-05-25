@@ -106,7 +106,48 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             if(block.text().startsWith("\t") || block.text().startsWith(" ")) cursor.deletePreviousChar();
         }
 
-    } else {
+    } else if(e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
+
+        QTextBlock block = cursor.block();
+        int liTabCount = 0;
+        int liSpaceCount = 0;
+        QString lsText = block.text();
+        QString::iterator i;
+
+        for(i = lsText.begin(); i != lsText.end(); ++i) {
+            if(*i == '\t') {
+                liTabCount ++;
+            } else if (*i == ' ') {
+                liSpaceCount ++;
+            }
+            else break;
+        }
+
+        this->insertPlainText("\r\n");
+
+        if(block.text().startsWith(" ")) {
+            this->insertSpaces(liSpaceCount);
+            this->insertTabs(liTabCount);
+        } else if(block.text().startsWith("\t")) {
+            this->insertTabs(liTabCount);
+            this->insertSpaces(liSpaceCount);
+        }
+
+    }else {
         QPlainTextEdit::keyPressEvent(e);
+    }
+}
+
+void CustomTextEdit::insertTabs(int liTabCount)
+{
+    for(int i = 0; i < liTabCount; i ++) {
+        this->insertPlainText("\t");
+    }
+}
+
+void CustomTextEdit::insertSpaces(int liSpaceCount)
+{
+    for(int i = 0; i < liSpaceCount; i ++) {
+        this->insertPlainText(" ");
     }
 }

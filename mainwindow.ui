@@ -140,10 +140,11 @@
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
-    <addaction name="actionNew_Tab"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose_Tab"/>
     <addaction name="actionSave_As"/>
+    <addaction name="separator"/>
+    <addaction name="actionNew_Tab"/>
+    <addaction name="actionClose_Tab"/>
+    <addaction name="separator"/>
     <addaction name="menuOpen_Recent"/>
    </widget>
    <widget class="QMenu" name="menuAbout">

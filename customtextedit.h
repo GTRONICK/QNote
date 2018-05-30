@@ -16,6 +16,8 @@ public:
     void dropEvent(QDropEvent *event);
     void dragMoveEvent(QDragMoveEvent *event);
     void keyPressEvent(QKeyEvent *e);
+    void insertTabs(int liTabCount);
+    void insertSpaces(int liSpaceCount);
 
 public slots:
     void highlightCurrentLine();

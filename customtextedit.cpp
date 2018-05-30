@@ -65,6 +65,7 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
 
     if(e->key() == Qt::Key_Tab && cursor.hasSelection()){
 
+        cursor.beginEditBlock();
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
 
@@ -85,7 +86,11 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             cursor.movePosition(QTextCursor::NextBlock);
         }
 
+        cursor.endEditBlock();
+
     } else if(e->key() == Qt::Key_Backtab){
+
+        cursor.beginEditBlock();
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
@@ -101,15 +106,55 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             if (!block.isValid())
                 continue;
 
-            if(cursor.positionInBlock() >= 1) {
-                cursor.movePosition(QTextCursor::StartOfLine);
-                cursor.clearSelection();
-                cursor.deleteChar();
-                cursor.movePosition(QTextCursor::NextBlock);
-            }
+            cursor.setPosition(block.position() + 1, QTextCursor::KeepAnchor);
+            cursor.clearSelection();
+            if(block.text().startsWith("\t") || block.text().startsWith(" ")) cursor.deletePreviousChar();
         }
 
-    } else {
+        cursor.endEditBlock();
+
+    } else if(e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
+
+        QTextBlock block = cursor.block();
+        int liTabCount = 0;
+        int liSpaceCount = 0;
+        QString lsText = block.text();
+        QString::iterator i;
+
+        for(i = lsText.begin(); i != lsText.end(); ++i) {
+            if(*i == '\t') {
+                liTabCount ++;
+            } else if (*i == ' ') {
+                liSpaceCount ++;
+            }
+            else break;
+        }
+
+        this->insertPlainText("\r\n");
+
+        if(block.text().startsWith(" ")) {
+            this->insertSpaces(liSpaceCount);
+            this->insertTabs(liTabCount);
+        } else if(block.text().startsWith("\t")) {
+            this->insertTabs(liTabCount);
+            this->insertSpaces(liSpaceCount);
+        }
+
+    }else {
         QPlainTextEdit::keyPressEvent(e);
+    }
+}
+
+void CustomTextEdit::insertTabs(int liTabCount)
+{
+    for(int i = 0; i < liTabCount; i ++) {
+        this->insertPlainText("\t");
+    }
+}
+
+void CustomTextEdit::insertSpaces(int liSpaceCount)
+{
+    for(int i = 0; i < liSpaceCount; i ++) {
+        this->insertPlainText(" ");
     }
 }

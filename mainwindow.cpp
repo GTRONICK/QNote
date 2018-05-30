@@ -22,7 +22,9 @@
 #include <QDialog>
 #include <QDebug>
 #include <QEvent>
+#include <QTabBar>
 #include <QTimer>
+#include <QScreen>
 #include <QMap>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -72,8 +74,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
 
     QShortcut *openFileLocation_shortCut = new QShortcut(QKeySequence(tr("F9")),this);
-
-    this->move(QApplication::desktop()->screen()->rect().center() - this->rect().center());
+    QScreen *lobScreen = QGuiApplication::screens().at(0);
+    this->move(lobScreen->geometry().center()- this->rect().center());
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(main_slot_tabChanged(int)));
     connect(ui->tabWidget,SIGNAL(ctw_signal_tabMoved(int,int)),this,SLOT(main_slot_tabMoved(int,int)));
@@ -173,6 +175,7 @@ bool MainWindow::on_actionSave_As_triggered()
 
     if(!gobFileNames.contains(lsFileName)){
         gobFileNames.append(lsFileName);
+        giCurrentFileIndex ++;
         this->addRecentFiles();
     }
 
@@ -241,6 +244,9 @@ bool MainWindow::saveConfig()
     configText = configText + "family=" + gobCurrentPlainTextEdit->fontInfo().family() + "\n";
     configText = configText + "size=" + QString::number(gobCurrentPlainTextEdit->fontInfo().style()) + "\n";
     configText = configText + "point=" + QString::number(gobCurrentPlainTextEdit->fontInfo().pointSize()) + "\n";
+    configText = configText + "[GEOMETRY]" + "\n";
+    configText = configText + "width=" + QString::number(this->geometry().width()) + "\n";
+    configText = configText + "height=" + QString::number(this->geometry().height()) + "\n";
     configText = configText + "[ALERTS]" + "\n";
     configText = configText + "showEraseAlert=" + QString("%1").arg(this->gbShowEraseAndSaveMessageBox) + "\n";
     configText = configText + "[FILESIZE]" + "\n";
@@ -284,6 +290,8 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("family")) gsSavedFont = line.split("=").at(1);
         else if(line.startsWith("size")) giSavedFontStyle = line.split("=").at(1).toInt();
         else if(line.startsWith("point")) giSavedFontPointSize = line.split("=").at(1).toInt();
+        else if(line.startsWith("width")) this->resize(line.split("=").at(1).toInt(),this->geometry().height());
+        else if(line.startsWith("height")) this->resize(this->geometry().width(),line.split("=").at(1).toInt());
         else if(line.startsWith("showEraseAlert")) gbShowEraseAndSaveMessageBox = line.split("=").at(1).toInt();
         else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
@@ -355,7 +363,7 @@ void MainWindow::on_actionNew_Tab_triggered()
     lobPlainTexEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
     lobPlainTexEdit->setAcceptDrops(true);
     int fontWidth = QFontMetrics(lobPlainTexEdit->currentCharFormat().font()).averageCharWidth();
-    lobPlainTexEdit->setTabStopWidth( TABCHARS * fontWidth );
+    lobPlainTexEdit->setTabStopDistance(TABCHARS * fontWidth );
     QPalette p = lobPlainTexEdit->palette();
     p.setColor(QPalette::Highlight, QColor(qRgb(200,0,0)));
     p.setColor(QPalette::HighlightedText, QColor(qRgb(255,255,255)));
@@ -673,6 +681,8 @@ void MainWindow::main_slot_textChanged()
 
 void MainWindow::main_slot_appendText(QString asText)
 {
+    gobCurrentPlainTextEdit->setUndoRedoEnabled(false);
+
     QString lsFileName;
 
     gbIsOpenedFile = true;
@@ -686,6 +696,8 @@ void MainWindow::main_slot_appendText(QString asText)
     }else{
         main_slot_resetCursor();
     }
+
+    gobCurrentPlainTextEdit->setUndoRedoEnabled(true);
 
     if(giCurrentFileIndex < gobFileNames.length()){
         lsFileName = gobFileNames.at(giCurrentFileIndex);
@@ -886,6 +898,7 @@ void MainWindow::main_slot_resetStatusBarText()
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 {
     gobFileNames.append(aobAction->text());
+    gobFileNames = removeDuplicates(gobFileNames);
     loadFile(aobAction->text());
 }
 
@@ -1048,7 +1061,9 @@ void MainWindow::loadFile(QString asFileName)
     if(!asFileName.isEmpty() && lobFile->exists()){
         emit main_signal_setCurrentFileSize(lobFile->size());
 
-        if(gobIsModifiedTextHash.value(giCurrentTabIndex) || (gobHash.value(giCurrentTabIndex) != NULL && gobHash.value(giCurrentTabIndex) != "")){
+        if(!gbIsReloadFile && (gobIsModifiedTextHash.value(giCurrentTabIndex) ||
+                               (gobHash.value(giCurrentTabIndex) != NULL &&
+                                gobHash.value(giCurrentTabIndex) != ""))){
             on_actionNew_Tab_triggered();
         }
 

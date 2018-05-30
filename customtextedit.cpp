@@ -65,6 +65,7 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
 
     if(e->key() == Qt::Key_Tab && cursor.hasSelection()){
 
+        cursor.beginEditBlock();
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
 
@@ -85,7 +86,11 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             cursor.movePosition(QTextCursor::NextBlock);
         }
 
+        cursor.endEditBlock();
+
     } else if(e->key() == Qt::Key_Backtab){
+
+        cursor.beginEditBlock();
 
         int start = cursor.selectionStart();
         int end = cursor.selectionEnd();
@@ -105,6 +110,8 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             cursor.clearSelection();
             if(block.text().startsWith("\t") || block.text().startsWith(" ")) cursor.deletePreviousChar();
         }
+
+        cursor.endEditBlock();
 
     } else if(e->key() == Qt::Key_Return || e->key() == Qt::Key_Enter) {
 

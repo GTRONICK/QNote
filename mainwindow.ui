@@ -170,15 +170,18 @@
     <property name="title">
      <string>&amp;Settings</string>
     </property>
+    <addaction name="actionFont"/>
+    <addaction name="separator"/>
     <addaction name="actionWord_wrap"/>
     <addaction name="separator"/>
+    <addaction name="actionAlways_on_top"/>
     <addaction name="actionLoad_theme"/>
     <addaction name="actionSystem_theme"/>
+    <addaction name="separator"/>
     <addaction name="actionAuto_Reload_delay"/>
-    <addaction name="actionFont"/>
-    <addaction name="actionAlways_on_top"/>
-    <addaction name="actionReset_alerts"/>
     <addaction name="actionSet_Maximun_file_size"/>
+    <addaction name="separator"/>
+    <addaction name="actionReset_alerts"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">

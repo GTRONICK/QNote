@@ -90,7 +90,7 @@
            </size>
           </property>
           <property name="text">
-           <string>Line 0. Col 0.</string>
+           <string>Line 1. Col 1.</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -99,6 +99,12 @@
         </item>
         <item>
          <widget class="QLabel" name="indicatorLabel">
+          <property name="minimumSize">
+           <size>
+            <width>15</width>
+            <height>15</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>15</width>
@@ -173,8 +179,8 @@
     <addaction name="actionFont"/>
     <addaction name="separator"/>
     <addaction name="actionWord_wrap"/>
-    <addaction name="separator"/>
     <addaction name="actionAlways_on_top"/>
+    <addaction name="separator"/>
     <addaction name="actionLoad_theme"/>
     <addaction name="actionSystem_theme"/>
     <addaction name="separator"/>

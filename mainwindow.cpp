@@ -74,8 +74,6 @@ MainWindow::MainWindow(QWidget *parent) :
     QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
 
     QShortcut *openFileLocation_shortCut = new QShortcut(QKeySequence(tr("F9")),this);
-    QScreen *lobScreen = QGuiApplication::screens().at(0);
-    this->move(lobScreen->geometry().center()- this->rect().center());
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(main_slot_tabChanged(int)));
     connect(ui->tabWidget,SIGNAL(ctw_signal_tabMoved(int,int)),this,SLOT(main_slot_tabMoved(int,int)));
@@ -247,6 +245,8 @@ bool MainWindow::saveConfig()
     configText = configText + "[GEOMETRY]" + "\n";
     configText = configText + "width=" + QString::number(this->geometry().width()) + "\n";
     configText = configText + "height=" + QString::number(this->geometry().height()) + "\n";
+    configText = configText + "x=" + QString::number(this->geometry().x()) + "\n";
+    configText = configText + "y=" + QString::number(this->geometry().y()) + "\n";
     configText = configText + "[ALERTS]" + "\n";
     configText = configText + "showEraseAlert=" + QString("%1").arg(this->gbShowEraseAndSaveMessageBox) + "\n";
     configText = configText + "[FILESIZE]" + "\n";
@@ -292,6 +292,8 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("point")) giSavedFontPointSize = line.split("=").at(1).toInt();
         else if(line.startsWith("width")) this->resize(line.split("=").at(1).toInt(),this->geometry().height());
         else if(line.startsWith("height")) this->resize(this->geometry().width(),line.split("=").at(1).toInt());
+        else if(line.startsWith("x")) this->move(line.split("=").at(1).toInt(),this->geometry().y());
+        else if(line.startsWith("y")) this->move(this->geometry().x(),line.split("=").at(1).toInt());
         else if(line.startsWith("showEraseAlert")) gbShowEraseAndSaveMessageBox = line.split("=").at(1).toInt();
         else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();

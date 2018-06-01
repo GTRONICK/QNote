@@ -331,7 +331,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.0",
+    QMessageBox::about(this,"QNote 1.7.1",
                        "<style>"
                        "a:link {"
                            "color: orange;"

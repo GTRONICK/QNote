@@ -27,7 +27,7 @@ void Worker::worker_slot_loadFile(QFile *file)
 
 void Worker::worker_slot_tailFile(QFile *file)
 {
-    if(file->size() != giFileSize) { //Se cambio de > a != para cargar el archivo aun si su tamaño se ha reducido
+    if(file->size() > giFileSize) {
         int liDiff = file->size() - giFileSize;
         if(file->open(QIODevice::ReadOnly | QIODevice::Text)) {
             if(file->seek(giFileSize)) {

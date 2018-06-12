@@ -57,7 +57,8 @@ MainWindow::MainWindow(QWidget *parent) :
     gsStatusBarColor = "orange";
     worker = new Worker;
     workerThread = new QThread;
-
+    gobDownloadManager = new DownloadManager();
+    //gobDownloadManager->execute("http://gtronick.com/versions/QNote_version.txt");
     setAcceptDrops(true);
     loadConfig();
 
@@ -330,7 +331,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.0",
+    QMessageBox::about(this,"QNote 1.7.1",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -643,7 +644,7 @@ void MainWindow::main_slot_tabChanged(int aIndex)
     if(gobIsModifiedTextHash.value(aIndex)){
         ui->indicatorLabel->setPixmap(QPixmap("://unsaved.png"));
     }else if(gbIsAutoreloadEnabled){
-        emit main_signal_setCurrentFileSize(0); //Se envía 0 para recargar todo el archivo.
+        emit main_signal_setCurrentFileSize(0);
         ui->indicatorLabel->setToolTip("Auto Reload Active");
         this->ui->indicatorLabel->setMovie(gobMovie);
         gobTimer->start(giTimerDelay);
@@ -668,8 +669,6 @@ void MainWindow::main_slot_tabMoved(int from, int to)
     bool lbTemporalValue = gobIsModifiedTextHash.value(to);
     gobIsModifiedTextHash.insert(to,gobIsModifiedTextHash.value(from));
     gobIsModifiedTextHash.insert(from,lbTemporalValue);
-
-    //Se agrega swap de archivos en gobFileNames
 }
 
 void MainWindow::main_slot_textChanged()
@@ -899,9 +898,10 @@ void MainWindow::main_slot_resetStatusBarText()
 
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 {
-    gobFileNames.append(aobAction->text());
-    gobFileNames = removeDuplicates(gobFileNames);
-    loadFile(aobAction->text());
+    if(!gobFileNames.contains(aobAction->text())) {
+            gobFileNames.append(aobAction->text());
+            loadFile(aobAction->text());
+    }
 }
 
 void MainWindow::main_slot_tailFile()
@@ -1063,9 +1063,7 @@ void MainWindow::loadFile(QString asFileName)
     if(!asFileName.isEmpty() && lobFile->exists()){
         emit main_signal_setCurrentFileSize(lobFile->size());
 
-        if(!gbIsReloadFile && (gobIsModifiedTextHash.value(giCurrentTabIndex) ||
-                               (gobHash.value(giCurrentTabIndex) != NULL &&
-                                gobHash.value(giCurrentTabIndex) != ""))){
+        if(gobHash.value(giCurrentTabIndex) != NULL && gobHash.value(giCurrentTabIndex) != ""){
             on_actionNew_Tab_triggered();
         }
 

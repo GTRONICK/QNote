@@ -140,6 +140,8 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
             this->insertSpaces(liSpaceCount);
         }
 
+        this->centerCursor();
+
     }else {
         QPlainTextEdit::keyPressEvent(e);
     }

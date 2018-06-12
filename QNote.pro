@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -28,13 +28,15 @@ SOURCES += main.cpp\
     customtabwidget.cpp \
     searchdialog.cpp \
     worker.cpp \
-    customtextedit.cpp
+    customtextedit.cpp \
+    downloadmanager.cpp
 
 HEADERS  += mainwindow.h \
     customtabwidget.h \
     searchdialog.h \
     worker.h \
-    customtextedit.h
+    customtextedit.h \
+    downloadmanager.h
 
 FORMS    += mainwindow.ui \
     searchdialog.ui

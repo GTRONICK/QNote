@@ -7,6 +7,7 @@ Lightweight yet powerful and fast QT Text editor
 
 # HOW TO INSTALL:
 
+Download from here: https://github.com/GTRONICK/QNote/releases/download/v1.7.1/QNote_1.7.1.zip  
 Just decompress the zip file and run QNote.exe.
 
 # HOW TO USE:

@@ -1,7 +1,7 @@
 # QNote
 Lightweight yet powerful and fast QT Text editor
 
-![QNote_GUI](https://sites.google.com/site/gtronick/QNote.PNG)
+![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.1.PNG)
 
 --This software is freeware --
 
@@ -74,16 +74,7 @@ Click on the status bar, at the file path location to open the containing folder
 
 ## IN THIS VERSION:
 
-  1. Tab friendly (new lines preserve identation).
-	2. Space friendly (new lines preserve identation).
-	3. Open containing folder with F9.
-	4. Improved the autoreload feature. 
-	5. Autoreload delay now can be as low as 10ms.
-	6. Added erase and save feature (without autoreload).
-	7. Window size and position persistence.
-	8. 1GB file limit.
-	9. Fixed Undo for new openend files.
-	10. MaterialDark theme shipped by default.
+  1. General bug fixes.
 	
 QNote is now compiled with QT5.11.
 

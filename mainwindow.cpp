@@ -57,7 +57,7 @@ MainWindow::MainWindow(QWidget *parent) :
     gsStatusBarColor = "orange";
     worker = new Worker;
     workerThread = new QThread;
-    gobDownloadManager = new DownloadManager();
+    //gobDownloadManager = new DownloadManager();
     //gobDownloadManager->execute("http://gtronick.com/versions/QNote_version.txt");
     setAcceptDrops(true);
     loadConfig();

@@ -16,6 +16,11 @@ SearchDialog::SearchDialog(QWidget *parent) :
     gbReplaceAllClicked = false;
 }
 
+void SearchDialog::focusOnSearchInputText()
+{
+    this->ui->seachDialog_searchLineEdit->setFocus();
+}
+
 /**
   Object's destructor.
 */
@@ -162,3 +167,5 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
     }
     emit search_signal_enableHighLight();
 }
+
+

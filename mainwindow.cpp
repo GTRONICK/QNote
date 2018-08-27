@@ -158,23 +158,27 @@ bool MainWindow::on_actionSave_As_triggered()
                                               ,tr("Text Files (*.txt);;All Files (*)"));
 
     giCurrentTabIndex = ui->tabWidget->currentIndex();
-    if(gobFilePathsHash.value(giCurrentTabIndex) != lsFileName){
+
+    if(lsFileName != NULL && !lsFileName.isEmpty() && gobFilePathsHash.value(giCurrentTabIndex) != lsFileName){
+        gobFileNames.removeAt(gobFileNames.indexOf(gobFilePathsHash.value(giCurrentTabIndex)));
+        gobFilePathsHash.remove(giCurrentTabIndex);
         gobFilePathsHash.insert(giCurrentTabIndex,lsFileName);
-    }
 
-    QPlainTextEdit* edit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
+        QPlainTextEdit* lobPlainTextEdit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
 
-    if(!saveFile(lsFileName,edit->toPlainText())) return false;
+        if(!saveFile(lsFileName,lobPlainTextEdit->toPlainText())) return false;
 
-    ui->indicatorLabel->clear();
-    gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-    setCurrentTabNameFromFile(lsFileName);
-    this->setStatusBarTextAsLink(lsFileName);
+        ui->indicatorLabel->clear();
+        gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
+        setCurrentTabNameFromFile(lsFileName);
+        this->setStatusBarTextAsLink(lsFileName);
 
-    if(!gobFileNames.contains(lsFileName)){
-        gobFileNames.append(lsFileName);
-        giCurrentFileIndex ++;
-        this->addRecentFiles();
+        if(!gobFileNames.contains(lsFileName)){
+            gobFileNames.append(lsFileName);
+            giCurrentFileIndex ++;
+            this->addRecentFiles();
+        }
+
     }
 
     return true;

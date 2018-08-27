@@ -43,11 +43,10 @@ MainWindow::MainWindow(QWidget *parent) :
     giCurrentTabIndex = 0;
     giDefaultDirCounter = 0;
     giOpenWithFlag = 0;
-    giRecentAux = 0;
-    giRecentFilePos = 0;
     giTimerDelay = 20;
     giTotalTabs = 0;
     gobFileNames.clear();
+    gobRecentFiles.clear();
     gobMovie = new QMovie("://reloading.gif");
     gobMovie->setScaledSize(QSize(15,15));
     gobSearchDialog = new SearchDialog(this);
@@ -57,11 +56,10 @@ MainWindow::MainWindow(QWidget *parent) :
     gsStatusBarColor = "orange";
     worker = new Worker;
     workerThread = new QThread;
-    //gobDownloadManager = new DownloadManager();
+    gobDownloadManager = new DownloadManager();
     //gobDownloadManager->execute("http://gtronick.com/versions/QNote_version.txt");
     setAcceptDrops(true);
     loadConfig();
-
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
 
     QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
@@ -120,6 +118,7 @@ void MainWindow::on_actionOpen_triggered()
 {
     //qDebug() << "Begin on_actionOpen_triggered";
     int liTempGobFileNamesSize = gobFileNames.size();
+
     giDefaultDirCounter ++;
 
     if(giDefaultDirCounter > 1) {
@@ -159,8 +158,8 @@ bool MainWindow::on_actionSave_As_triggered()
                                               ,tr("Text Files (*.txt);;All Files (*)"));
 
     giCurrentTabIndex = ui->tabWidget->currentIndex();
-    if(gobHash.value(giCurrentTabIndex) != lsFileName){
-        gobHash.insert(giCurrentTabIndex,lsFileName);
+    if(gobFilePathsHash.value(giCurrentTabIndex) != lsFileName){
+        gobFilePathsHash.insert(giCurrentTabIndex,lsFileName);
     }
 
     QPlainTextEdit* edit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
@@ -186,7 +185,7 @@ bool MainWindow::on_actionSave_triggered()
     QString lsFileName;
 
     giCurrentTabIndex = ui->tabWidget->currentIndex();
-    lsFileName = gobHash.value(giCurrentTabIndex);
+    lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
 
     QFile file(lsFileName);
 
@@ -248,6 +247,7 @@ bool MainWindow::saveConfig()
     configText = configText + "height=" + QString::number(this->geometry().height()) + "\n";
     configText = configText + "x=" + QString::number(this->geometry().x()) + "\n";
     configText = configText + "y=" + QString::number(this->geometry().y()) + "\n";
+    configText = configText + "maximized=" + QString("%1").arg(this->isMaximized()) + "\n";
     configText = configText + "[ALERTS]" + "\n";
     configText = configText + "showEraseAlert=" + QString("%1").arg(this->gbShowEraseAndSaveMessageBox) + "\n";
     configText = configText + "[FILESIZE]" + "\n";
@@ -255,7 +255,6 @@ bool MainWindow::saveConfig()
     configText = configText + "[RELOAD]" + "\n";
     configText = configText + "delay=" + QString("%1").arg(giTimerDelay) + "\n";
     configText = configText + "[RECENTS]" + "\n";
-    configText = configText + "position=" + QString::number(giRecentFilePos) + "\n";
     configText = configText + "recentFiles=";
 
     for(QString lsFile:gobRecentFiles){
@@ -273,7 +272,10 @@ bool MainWindow::saveConfig()
 bool MainWindow::loadConfig()
 {
     QString line;
+    QScreen *screen = QGuiApplication::primaryScreen();
+    int liIsMaximized = 0;
     QFile *lobConfigFile = new QFile("QNote_config.ini");
+
     if(!lobConfigFile->open(QFile::ReadOnly)){
 
         gsSavedFont = "Arial";
@@ -289,22 +291,32 @@ bool MainWindow::loadConfig()
         if(line.startsWith("themeFile")) gsThemeFile = line.split("=").at(1);
         else if(line.startsWith("statusBarColor")) gsStatusBarColor = line.split("=").at(1);
         else if(line.startsWith("family")) gsSavedFont = line.split("=").at(1);
+        else if(line.startsWith("maximized")) {
+
+            if(line.split("=").at(1).toInt() == 1 ) {
+                this->resize(585,453);
+                this->move(screen->availableGeometry().center() - this->rect().center());
+                this->showMaximized();
+                liIsMaximized = 1;
+            }
+        }
         else if(line.startsWith("size")) giSavedFontStyle = line.split("=").at(1).toInt();
         else if(line.startsWith("point")) giSavedFontPointSize = line.split("=").at(1).toInt();
-        else if(line.startsWith("width")) this->resize(line.split("=").at(1).toInt(),this->geometry().height());
-        else if(line.startsWith("height")) this->resize(this->geometry().width(),line.split("=").at(1).toInt());
-        else if(line.startsWith("x")) this->move(line.split("=").at(1).toInt(),this->geometry().y());
-        else if(line.startsWith("y")) this->move(this->geometry().x(),line.split("=").at(1).toInt());
+        else if(line.startsWith("width")  && liIsMaximized == 0) this->resize(line.split("=").at(1).toInt(),this->geometry().height());
+        else if(line.startsWith("height")  && liIsMaximized == 0) this->resize(this->geometry().width(),line.split("=").at(1).toInt());
+        else if(line.startsWith("x")  && liIsMaximized == 0) this->move(line.split("=").at(1).toInt(),this->geometry().y());
+        else if(line.startsWith("y")  && liIsMaximized == 0) this->move(this->geometry().x(),line.split("=").at(1).toInt());
         else if(line.startsWith("showEraseAlert")) gbShowEraseAndSaveMessageBox = line.split("=").at(1).toInt();
         else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
-        else if(line.startsWith("position")) giRecentFilePos = line.split("=").at(1).toInt();
         else if(line.startsWith("recentFiles")) {
+
             QStringList lobRecentList= line.split("@@");
             lobRecentList.removeAt(0);
             for(QString lsRecentFile:lobRecentList){
                 gobRecentFiles.append(lsRecentFile);
             }
+
             this->addRecentFiles();
         }
     }
@@ -331,7 +343,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.1",
+    QMessageBox::about(this,"QNote 1.7.2",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -357,13 +369,13 @@ void MainWindow::on_actionClose_Tab_triggered()
 void MainWindow::on_actionNew_Tab_triggered()
 {
     //qDebug() << "Begin on_actionNew_Tab_triggered";
-
+    disableAutoReload();
     giTotalTabs ++;
     QApplication::processEvents();
     CustomTextEdit *lobPlainTexEdit = new CustomTextEdit();
     lobPlainTexEdit->setPlaceholderText("Type Here...");
     lobPlainTexEdit->setFrameShape(QFrame::NoFrame);
-    lobPlainTexEdit->setLineWrapMode(QPlainTextEdit::NoWrap);
+    lobPlainTexEdit->setLineWrapMode(QPlainTextEdit::WidgetWidth);
     lobPlainTexEdit->setAcceptDrops(true);
     int fontWidth = QFontMetrics(lobPlainTexEdit->currentCharFormat().font()).averageCharWidth();
     lobPlainTexEdit->setTabStopDistance(TABCHARS * fontWidth );
@@ -381,15 +393,14 @@ void MainWindow::on_actionNew_Tab_triggered()
     lobPlainTexEdit->setFont(serifFont);
     giCurrentTabIndex = this->ui->tabWidget->addTab(lobPlainTexEdit,"New " + QString::number(giTotalTabs));
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
-    gobHash.insert(giCurrentTabIndex,"");
+    gobFilePathsHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-
     //qDebug() << "End on_actionNew_Tab_triggered";
 }
 
 void MainWindow::on_actionReload_file_triggered()
 {
-    QString lsFileName = gobHash.value(giCurrentTabIndex);
+    QString lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
 
     if(checkFileExist(lsFileName)){
         QFile *lobFile = new QFile(lsFileName);
@@ -415,8 +426,7 @@ void MainWindow::on_actionReload_file_triggered()
         if(gobTimer->isActive()){
             gobTimer->blockSignals(true);
             gobTimer->stop();
-            gbIsAutoreloadEnabled = false;
-            ui->actionAuto_Reload_tail_f->setChecked(false);
+            disableAutoReload();
         }
     }
 }
@@ -448,6 +458,7 @@ void MainWindow::on_actionGo_to_line_triggered()
 
 void MainWindow::on_actionFind_Replace_triggered()
 {
+    gobSearchDialog->focusOnSearchInputText();
     gobSearchDialog->setVisible(true);
 }
 
@@ -487,7 +498,7 @@ void MainWindow::on_actionSystem_theme_triggered()
 
 void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
 {
-    QString lsFileName = gobHash.value(giCurrentTabIndex);
+    QString lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
     gbIsAutoreloadEnabled = arg1;
 
     if(arg1 && checkFileExist(lsFileName)){
@@ -499,11 +510,8 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         gobTimer->blockSignals(false);
         gobTimer->start(giTimerDelay);
         ui->indicatorLabel->movie()->start();
-        gobCurrentPlainTextEdit->setReadOnly(true);
         lockTextEditor();
-        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
     }else{
-        gbIsAutoreloadEnabled = false;
         gbIsReloadFile = false;
         gobCurrentPlainTextEdit->setReadOnly(false);
         gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::TextEditorInteraction);
@@ -511,12 +519,11 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         if(gobTimer->isActive()) gobTimer->stop();
         if(ui->indicatorLabel->movie() != NULL) ui->indicatorLabel->movie()->stop();
         ui->indicatorLabel->clear();
+        disconnect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
+        ui->actionAuto_Reload_tail_f->setChecked(false);
+        connect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
 
         if(!checkFileExist(lsFileName)){
-            disconnect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
-            ui->actionAuto_Reload_tail_f->setChecked(false);
-            connect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
-
             QMessageBox *lobMesgBox = new QMessageBox(this);
             lobMesgBox->setWindowTitle("ERROR");
             lobMesgBox->setText("The file can't be loaded");
@@ -637,7 +644,7 @@ void MainWindow::main_slot_resetCursor()
 void MainWindow::main_slot_tabChanged(int aIndex)
 {
     giCurrentTabIndex = aIndex;    
-    this->setStatusBarTextAsLink(gobHash.value(aIndex));
+    this->setStatusBarTextAsLink(gobFilePathsHash.value(aIndex));
     gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
     QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
     gobCurrentPlainTextEdit->setFont(serifFont);
@@ -649,9 +656,7 @@ void MainWindow::main_slot_tabChanged(int aIndex)
         this->ui->indicatorLabel->setMovie(gobMovie);
         gobTimer->start(giTimerDelay);
         ui->indicatorLabel->movie()->start();
-        gobCurrentPlainTextEdit->setReadOnly(true);
         lockTextEditor();
-        gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
         gobCurrentPlainTextEdit->clear();
     }else{
         if(!gbIsAutoreloadEnabled) ui->indicatorLabel->clear();
@@ -662,9 +667,9 @@ void MainWindow::main_slot_tabChanged(int aIndex)
 
 void MainWindow::main_slot_tabMoved(int from, int to)
 {
-    QString lsTemporalValue = gobHash.value(to);
-    gobHash.insert(to,gobHash.value(from));
-    gobHash.insert(from,lsTemporalValue);
+    QString lsTemporalValue = gobFilePathsHash.value(to);
+    gobFilePathsHash.insert(to,gobFilePathsHash.value(from));
+    gobFilePathsHash.insert(from,lsTemporalValue);
 
     bool lbTemporalValue = gobIsModifiedTextHash.value(to);
     gobIsModifiedTextHash.insert(to,gobIsModifiedTextHash.value(from));
@@ -711,10 +716,10 @@ void MainWindow::main_slot_insertText(QString asText)
     gbIsOpenedFile = true;
     QScrollBar *lobBar = gobCurrentPlainTextEdit->verticalScrollBar();
 
-    if(lobBar->value() == lobBar->maximum()) {
+    if(lobBar->value() == lobBar->maximum()) {      //Si estamos al final del archivo
         gobCurrentPlainTextEdit->insertPlainText(asText);
         lockTextEditor();
-    } else {
+    } else {        //Si estamos en un punto intermedio y queremos hacer scroll
         gobCurrentPlainTextEdit->insertPlainText(asText);
     }
 
@@ -743,10 +748,13 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
             }
         }
         if(!gobFileNames.isEmpty() && gobFileNames.size() > liTempGobFileNamesSize){
+
             QString lsFileName = gobFileNames.at(giCurrentFileIndex);
+
             loadFile(lsFileName);
+
         }
-        this->addRecentFiles();
+        addRecentFiles();
         event->acceptProposedAction();
     }
 
@@ -882,8 +890,8 @@ void MainWindow::main_slot_pasteGr4()
 
 void MainWindow::main_slot_openFileLocation()
 {
-    if(!gobHash.value(giCurrentTabIndex).isNull() && !gobHash.value(giCurrentTabIndex).isEmpty()) {
-        on_statusBar_linkActivated(gobHash.value(giCurrentTabIndex));
+    if(!gobFilePathsHash.value(giCurrentTabIndex).isNull() && !gobFilePathsHash.value(giCurrentTabIndex).isEmpty()) {
+        on_statusBar_linkActivated(gobFilePathsHash.value(giCurrentTabIndex));
     }
 }
 
@@ -893,7 +901,7 @@ void MainWindow::main_slot_openFileLocation()
 */
 void MainWindow::main_slot_resetStatusBarText()
 {
-    this->setStatusBarTextAsLink(gobHash.value(giCurrentTabIndex));
+    this->setStatusBarTextAsLink(gobFilePathsHash.value(giCurrentTabIndex));
 }
 
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
@@ -906,7 +914,7 @@ void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 
 void MainWindow::main_slot_tailFile()
 {
-    QString lsFileName = gobHash.value(giCurrentTabIndex);
+    QString lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
 
     if(checkFileExist(lsFileName)){
         QFile *lobFile = new QFile(lsFileName);
@@ -1019,12 +1027,12 @@ void MainWindow::closeTab(int index)
     QFile *lobFile;
 
     if(giTotalTabs > 1){
-        lobFile = new QFile(gobHash.value(index));
-        gobFileNames.removeAt(gobFileNames.indexOf(gobHash.value(index)));
+        lobFile = new QFile(gobFilePathsHash.value(index));
+        gobFileNames.removeAt(gobFileNames.indexOf(gobFilePathsHash.value(index)));
         giCurrentFileIndex --;
-        gobHash.remove(index);
+        gobFilePathsHash.remove(index);
         for(int i = index; i < giTotalTabs; i ++){
-            gobHash.insert(i,gobHash.value(i + 1));
+            gobFilePathsHash.insert(i,gobFilePathsHash.value(i + 1));
         }
 
         gobIsModifiedTextHash.remove(index);
@@ -1032,7 +1040,7 @@ void MainWindow::closeTab(int index)
             gobIsModifiedTextHash.insert(i,gobIsModifiedTextHash.value(i + 1));
         }
 
-        this->setStatusBarTextAsLink(gobHash.value(giCurrentTabIndex));
+        this->setStatusBarTextAsLink(gobFilePathsHash.value(giCurrentTabIndex));
         if(lobFile->isOpen()){
             lobFile->close();
             lobFile = NULL;
@@ -1048,7 +1056,7 @@ void MainWindow::closeTab(int index)
         giCurrentFileIndex = 0;
         gobFileNames.clear();
         gobIsModifiedTextHash.clear();
-        gobHash.clear();
+        gobFilePathsHash.clear();
         on_actionNew_Tab_triggered();
         this->ui->tabWidget->removeTab(index);
     }
@@ -1061,13 +1069,16 @@ void MainWindow::loadFile(QString asFileName)
     QFile *lobFile = new QFile(asFileName);
 
     if(!asFileName.isEmpty() && lobFile->exists()){
+
+        disableAutoReload();
+
         emit main_signal_setCurrentFileSize(lobFile->size());
 
-        if(gobHash.value(giCurrentTabIndex) != NULL && gobHash.value(giCurrentTabIndex) != ""){
+        if(gobFilePathsHash.value(giCurrentTabIndex) != NULL && gobFilePathsHash.value(giCurrentTabIndex) != ""){
             on_actionNew_Tab_triggered();
         }
 
-        gobHash.insert(giCurrentTabIndex,asFileName);
+        gobFilePathsHash.insert(giCurrentTabIndex,asFileName);
         setCurrentTabNameFromFile(asFileName);
         main_slot_tabChanged(giCurrentTabIndex);
 
@@ -1186,20 +1197,20 @@ void MainWindow::on_statusBar_linkActivated(const QString &link)
 void MainWindow::addRecentFiles()
 {
 
-    if(gobRecentFiles.size() >= MAX_RECENT) giRecentAux = MAX_RECENT + 1;
-    if(giRecentFilePos >= MAX_RECENT) giRecentFilePos = 0;
-
     for(int i = 0; i < gobFileNames.size(); i++){
 
-        if(!gobRecentFiles.contains(gobFileNames.at(i)) && giRecentAux <= MAX_RECENT) {
-            gobRecentFiles.append(gobFileNames.at(i));
-            giRecentFilePos ++;
-            giRecentAux ++;
-            if(giRecentFilePos >= MAX_RECENT) giRecentFilePos = 0;
-        } else if(!gobRecentFiles.contains(gobFileNames.at(i))) {
-            gobRecentFiles.replace(giRecentFilePos,gobFileNames.at(i));
-            giRecentFilePos ++;
-            giRecentAux ++;
+        if(!gobRecentFiles.contains(gobFileNames.at(i))) {
+
+            if(gobRecentFiles.size() < MAX_RECENT) {
+                gobRecentFiles.append(" ");
+            }
+
+            int liLastArrayPosition = gobRecentFiles.size() - 1;
+            for(int j = liLastArrayPosition; j > 0; j--) {
+                gobRecentFiles.move(j - 1,j);
+            }
+
+            gobRecentFiles.replace(0,gobFileNames.at(i));
         }
     }
 
@@ -1209,6 +1220,11 @@ void MainWindow::addRecentFiles()
         QAction *lobAction = new QAction(gobRecentFiles.at(i), this);
         ui->menuOpen_Recent->insertAction(ui->menuOpen_Recent->actions().at(i),lobAction);
     }
+}
+
+void MainWindow::disableAutoReload()
+{
+    if(gbIsAutoreloadEnabled) this->on_actionAuto_Reload_tail_f_toggled(false);
 }
 
 QStringList MainWindow::removeDuplicates(QStringList aobList)
@@ -1237,11 +1253,12 @@ QStringList MainWindow::removeDuplicates(QStringList aobList)
 
 void MainWindow::lockTextEditor()
 {
-
+    gobCurrentPlainTextEdit->setReadOnly(true);
     QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
     lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
     gobCurrentPlainTextEdit->setTextCursor(lobCursor);
-    gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());
+    gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
+    gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());    
 }
 
 void MainWindow::on_actionErase_and_save_2_triggered()
@@ -1261,10 +1278,7 @@ void MainWindow::on_actionErase_and_save_2_triggered()
     }
 
     if(ret == QMessageBox::Ok){
-        if(this->gbIsAutoreloadEnabled){
-            this->ui->actionAuto_Reload_tail_f->setChecked(false);
-        }
-
+        disableAutoReload();
         gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
         gobCurrentPlainTextEdit->clear();
         this->on_actionSave_triggered();

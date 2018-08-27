@@ -11,6 +11,7 @@
 #include "searchdialog.h"
 #include "customtextedit.h"
 #include "worker.h"
+#include "downloadmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -98,6 +99,7 @@ private:
     void loadFile(QString asFileName);
     void setCurrentTabNameFromFile(QString asFileName);
     void addRecentFiles();
+    void disableAutoReload();
     QStringList removeDuplicates(QStringList aobList);
 
     Ui::MainWindow *ui;             //Interfaz de usuario
@@ -106,10 +108,8 @@ private:
 
     int giCurrentFileIndex;         //indice para el archivo actual que se abrirá
     int giCurrentTabIndex;          //indice para la pestaña actual
-    int giDefaultDirCounter;
+    int giDefaultDirCounter;        //Contador de archivos abiertos mediante Open, para aegurar que la proxima vez que se abra un archivo, se cargue el directorio del ultimo abierto.
     int giOpenWithFlag;
-    int giRecentAux;
-    int giRecentFilePos;            //Contador de posicion del archivo actual
     int giSavedFontPointSize;
     int giSavedFontStyle;
     int giTimerDelay;               //Tiempo de espera en milisegundos para la recarga automática
@@ -121,10 +121,11 @@ private:
     bool gbIsAutoreloadEnabled;     //Bandera que indica si la recarga automatica esta activa
     bool gbSaveCancelled;           //Bandera que indica si se canceló el guardado del archivo
 
-    QHash<int, QString> gobHash;    //Mapa que almacena índice del tab y ruta de archivo
+    QHash<int, QString> gobFilePathsHash;    //Mapa que almacena índice del tab y ruta de archivo
     QHash<int, bool> gobIsModifiedTextHash;     //Mapa que almacena índice del tab, y si el archivo correspondiente ha sido modificado
+    QHash<int, bool> gobIsReloadingHash;     //Mapa que almacena índice del tab, y si el archivo se encuentra en recarga automática
 
-    QString gsDefaultDir;
+    QString gsDefaultDir;           //Cadena con la ruta del directorio por defecto a mostrar al abrir un archivo.
     QString gsGr1;
     QString gsGr2;
     QString gsGr3;
@@ -135,8 +136,8 @@ private:
     QString gsThemeFile;            //Ruta del archivo del tema usado (style.qss)
     QString gsStatusBarColor;
 
-    QStringList gobFileNames;       //Lista de archivos arrastrados o abiertos
-    QStringList gobRecentFiles;
+    QStringList gobFileNames;       //Lista de archivos arrastrados o abiertos.
+    QStringList gobRecentFiles;     //Lista de archivos recientes.
 
     SearchDialog *gobSearchDialog;  //Diálogo de buscar y reemplazar
     CustomTextEdit *gobCurrentPlainTextEdit;    //Objeto que almacena el QPlainTextEdit actual
@@ -144,6 +145,8 @@ private:
     QThread *workerThread;          //Hilo separado del hilo principal
     QTimer *gobTimer;               //Temporizador para recarga automática de archivos
     Worker *worker;                 //
+    DownloadManager *gobDownloadManager;
+
 
 
 protected:

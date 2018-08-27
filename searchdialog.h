@@ -14,6 +14,7 @@ class SearchDialog : public QDialog
 
 public:
     explicit SearchDialog(QWidget *parent = 0);
+    void focusOnSearchInputText();
     ~SearchDialog();
 
 signals:
@@ -27,7 +28,6 @@ private slots:
     void on_searchDialog_replaceButton_clicked();
     void on_searchDialog_replaceAllButton_clicked();
     void search_slot_setTextEdit(QPlainTextEdit *textEdit);
-
     void on_gobSwapTextButton_clicked();
 
 private:

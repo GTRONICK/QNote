@@ -93,6 +93,7 @@ private:
     bool loadConfig();
     bool saveConfig();
     bool saveFile(QString asFileName, QString asText);
+    bool saveFile(QString asFileName);
     //int checkFileSize(QString asFileName);
     void checkIfUnsaved(int index);
     void closeTab(int index);

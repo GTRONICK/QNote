@@ -164,24 +164,10 @@ bool MainWindow::on_actionSave_As_triggered()
         gobFilePathsHash.remove(giCurrentTabIndex);
         gobFilePathsHash.insert(giCurrentTabIndex,lsFileName);
 
-        QPlainTextEdit* lobPlainTextEdit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
-
-        if(!saveFile(lsFileName,lobPlainTextEdit->toPlainText())) return false;
-
-        ui->indicatorLabel->clear();
-        gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-        setCurrentTabNameFromFile(lsFileName);
-        this->setStatusBarTextAsLink(lsFileName);
-
-        if(!gobFileNames.contains(lsFileName)){
-            gobFileNames.append(lsFileName);
-            giCurrentFileIndex ++;
-            this->addRecentFiles();
-        }
-
+        return saveFile(lsFileName);
+    } else {
+        return false;
     }
-
-    return true;
 }
 
 bool MainWindow::on_actionSave_triggered()
@@ -194,25 +180,10 @@ bool MainWindow::on_actionSave_triggered()
     QFile file(lsFileName);
 
     if(file.exists()){
-
-        QPlainTextEdit* edit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
-        if(!saveFile(lsFileName,edit->toPlainText())) return false;
-        ui->indicatorLabel->clear();
-        if(gobIsModifiedTextHash.contains(giCurrentTabIndex)) {
-            gobIsModifiedTextHash.remove(giCurrentTabIndex);
-        }
-        gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-        setCurrentTabNameFromFile(lsFileName);
-        if(!gobFileNames.contains(lsFileName)){
-            gobFileNames.append(lsFileName);
-            this->addRecentFiles();
-        }
-
+        return saveFile(lsFileName);
     }else{
-        if(!on_actionSave_As_triggered()) return false;
+        return on_actionSave_As_triggered();
     }
-
-    return true;
 }
 
 bool MainWindow::saveFile(QString asFileName, QString asText)
@@ -232,6 +203,26 @@ bool MainWindow::saveFile(QString asFileName, QString asText)
     QTextStream out(&file);
     out << asText;
     file.close();
+
+    return true;
+}
+
+bool MainWindow::saveFile(QString asFileName)
+{
+    QPlainTextEdit* lobPlainTextEdit = qobject_cast<QPlainTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
+    if(!saveFile(asFileName,lobPlainTextEdit->toPlainText())) return false;
+    ui->indicatorLabel->clear();
+    if(gobIsModifiedTextHash.contains(giCurrentTabIndex)) {
+        gobIsModifiedTextHash.remove(giCurrentTabIndex);
+    }
+    gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
+    setCurrentTabNameFromFile(asFileName);
+    this->setStatusBarTextAsLink(asFileName);
+    if(!gobFileNames.contains(asFileName)){
+        gobFileNames.append(asFileName);
+        giCurrentFileIndex ++;
+        this->addRecentFiles();
+    }
 
     return true;
 }
@@ -910,9 +901,12 @@ void MainWindow::main_slot_resetStatusBarText()
 
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 {
-    if(!gobFileNames.contains(aobAction->text())) {
+    if(aobAction->text().compare("Clear list") != 0 && !gobFileNames.contains(aobAction->text())) {
             gobFileNames.append(aobAction->text());
             loadFile(aobAction->text());
+    } else if(aobAction->text().compare("Clear list") == 0) {
+        ui->menuOpen_Recent->clear();
+        gobRecentFiles.clear();
     }
 }
 
@@ -1096,7 +1090,7 @@ void MainWindow::loadFile(QString asFileName)
         emit main_signal_loadFile(lobFile);
 
     } else {
-        QMessageBox::warning(this,"Error!","The file " + asFileName + "can't be opened.");
+        QMessageBox::warning(this,"Error!","The file " + asFileName + " can't be opened.");
         gobFileNames.removeAt(giCurrentFileIndex);
     }
     //qDebug() << "End loadFile";
@@ -1220,10 +1214,14 @@ void MainWindow::addRecentFiles()
 
     ui->menuOpen_Recent->clear();
 
-    for(int i = 0; i < gobRecentFiles.size(); i++){
-        QAction *lobAction = new QAction(gobRecentFiles.at(i), this);
-        ui->menuOpen_Recent->insertAction(ui->menuOpen_Recent->actions().at(i),lobAction);
+    int i = 0;
+
+    for(i = 0; i < gobRecentFiles.size(); i++){
+        ui->menuOpen_Recent->addAction(gobRecentFiles.at(i));
     }
+
+    ui->menuOpen_Recent->addSeparator();
+    ui->menuOpen_Recent->addAction("Clear list");
 }
 
 void MainWindow::disableAutoReload()

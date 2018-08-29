@@ -188,12 +188,12 @@ bool MainWindow::on_actionSave_triggered()
 
 bool MainWindow::saveFile(QString asFileName, QString asText)
 {
-    QFile file(asFileName);
-
     if(asFileName.isEmpty()){
 
         return false;
     }
+
+    QFile file(asFileName);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
         QMessageBox::critical(this,"Error","File could not be opened");
@@ -429,18 +429,17 @@ void MainWindow::on_actionReload_file_triggered()
 void MainWindow::on_actionGo_to_line_triggered()
 {
     bool ok;
-        int line_number = QInputDialog::getInt(this, tr("Go to"),
-                                               tr("Go to line: "),
-                                               1,
-                                               1,
-                                               gobCurrentPlainTextEdit->blockCount(),
-                                               1,
-                                               &ok);
+    int line_number = QInputDialog::getInt(this, tr("Go to"),
+                                           tr("Go to line: "),
+                                           1,
+                                           1,
+                                           gobCurrentPlainTextEdit->blockCount(),
+                                           1,
+                                           &ok);
     if(ok){
         int moves = line_number-(gobCurrentPlainTextEdit->textCursor().blockNumber() + 1);
         QTextCursor cursor = gobCurrentPlainTextEdit->textCursor();
-        if(moves)
-        {
+        if(moves){
             if(moves<0) cursor.movePosition(QTextCursor::Up, QTextCursor::MoveAnchor, -moves);
             else cursor.movePosition(QTextCursor::Down, QTextCursor::MoveAnchor, moves);
 
@@ -497,6 +496,7 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
     gbIsAutoreloadEnabled = arg1;
 
     if(arg1 && checkFileExist(lsFileName)){
+        gobCurrentPlainTextEdit->clear();
         QFile *lobFile = new QFile(lsFileName);
         emit main_signal_setCurrentFileSize(lobFile->size());
         checkIfUnsaved(giCurrentTabIndex);
@@ -514,20 +514,13 @@ void MainWindow::on_actionAuto_Reload_tail_f_toggled(bool arg1)
         if(gobTimer->isActive()) gobTimer->stop();
         if(ui->indicatorLabel->movie() != NULL) ui->indicatorLabel->movie()->stop();
         ui->indicatorLabel->clear();
+
         disconnect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
         ui->actionAuto_Reload_tail_f->setChecked(false);
         connect(ui->actionAuto_Reload_tail_f,SIGNAL(toggled(bool)),this,SLOT(on_actionAuto_Reload_tail_f_toggled(bool)));
 
         if(!checkFileExist(lsFileName)){
-            QMessageBox *lobMesgBox = new QMessageBox(this);
-            lobMesgBox->setWindowTitle("ERROR");
-            lobMesgBox->setText("The file can't be loaded");
-            QPushButton *lobButton = new QPushButton("Reload",lobMesgBox);
-            lobMesgBox->addButton(lobButton,QMessageBox::AcceptRole);
-            lobMesgBox->addButton(QMessageBox::Cancel);
-            lobMesgBox->exec();
-
-            if(lobMesgBox->clickedButton() == lobButton){
+            if(showCustomMessage("ERROR","The file can't be loaded","Reload")){
                gbIsAutoreloadEnabled = true;
                gobCurrentPlainTextEdit->clear();
                ui->actionAuto_Reload_tail_f->setChecked(true);
@@ -1260,7 +1253,19 @@ void MainWindow::lockTextEditor()
     lobCursor.setPosition(gobCurrentPlainTextEdit->toPlainText().size());
     gobCurrentPlainTextEdit->setTextCursor(lobCursor);
     gobCurrentPlainTextEdit->setTextInteractionFlags(Qt::NoTextInteraction);
-    gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());    
+    gobCurrentPlainTextEdit->verticalScrollBar()->setValue(gobCurrentPlainTextEdit->verticalScrollBar()->maximum());
+}
+
+bool MainWindow::showCustomMessage(QString asTitle, QString asText, QString asCustomButtonText)
+{
+    QMessageBox *lobMesgBox = new QMessageBox(this);
+    lobMesgBox->setWindowTitle(asTitle);
+    lobMesgBox->setText(asText);
+    QPushButton *lobButton = new QPushButton(asCustomButtonText,lobMesgBox);
+    lobMesgBox->addButton(lobButton,QMessageBox::AcceptRole);
+    lobMesgBox->addButton(QMessageBox::Cancel);
+    lobMesgBox->exec();
+    return lobMesgBox->clickedButton() == lobButton ? true : false;
 }
 
 void MainWindow::on_actionErase_and_save_2_triggered()

@@ -28,6 +28,7 @@ public:
     void setFileNameFromCommandLine(QStringList asFileNames);
     void setStatusBarTextAsLink(QString asText);
     void lockTextEditor();
+    bool showCustomMessage(QString asTitle, QString asText, QString asCustomButtonText);
     ~MainWindow();
 
 signals:

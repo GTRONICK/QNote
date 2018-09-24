@@ -453,6 +453,7 @@ void MainWindow::on_actionGo_to_line_triggered()
 void MainWindow::on_actionFind_Replace_triggered()
 {
     gobSearchDialog->focusOnSearchInputText();
+    gobSearchDialog->setSearchText(this->gobCurrentPlainTextEdit->textCursor().selectedText());
     gobSearchDialog->setVisible(true);
 }
 

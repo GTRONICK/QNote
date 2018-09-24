@@ -21,6 +21,11 @@ void SearchDialog::focusOnSearchInputText()
     this->ui->seachDialog_searchLineEdit->setFocus();
 }
 
+void SearchDialog::setSearchText(QString asText)
+{
+    this->ui->seachDialog_searchLineEdit->setText(asText);
+}
+
 /**
   Object's destructor.
 */

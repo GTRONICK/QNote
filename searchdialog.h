@@ -15,6 +15,7 @@ class SearchDialog : public QDialog
 public:
     explicit SearchDialog(QWidget *parent = 0);
     void focusOnSearchInputText();
+    void setSearchText(QString asText);
     ~SearchDialog();
 
 signals:

@@ -8,6 +8,7 @@
 #include <QTimer>
 #include <QMovie>
 #include <QAction>
+#include <QAbstractButton>
 #include "searchdialog.h"
 #include "customtextedit.h"
 #include "worker.h"

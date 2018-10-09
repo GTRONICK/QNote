@@ -143,6 +143,7 @@
       <string>Open Recent</string>
      </property>
      <addaction name="separator"/>
+     <addaction name="separator"/>
     </widget>
     <addaction name="actionOpen"/>
     <addaction name="actionSave"/>
@@ -380,6 +381,11 @@
    </property>
    <property name="shortcut">
     <string>F8</string>
+   </property>
+  </action>
+  <action name="actionClear_list">
+   <property name="text">
+    <string>Clear list</string>
    </property>
   </action>
  </widget>

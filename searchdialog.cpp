@@ -14,6 +14,7 @@ SearchDialog::SearchDialog(QWidget *parent) :
     gbReplaceClicked = false;
     gbSearchClicked = false;
     gbReplaceAllClicked = false;
+    giSearchFlag = 0;
 }
 
 void SearchDialog::focusOnSearchInputText()
@@ -102,7 +103,7 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 
         emit(search_signal_resetCursor());
         gsFoundText = ui->seachDialog_searchLineEdit->text();
-        while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+        while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
             selection.cursor = gobTextEdit->textCursor();
             extraSelections.append(selection);
         }
@@ -127,12 +128,12 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
         selection.format.setForeground(QColor(0,0,0));
         gobTextEdit->extraSelections().clear();
 
-        if(gsFoundText != ui->seachDialog_searchLineEdit->text()){
+        if(gsFoundText.toLower() != ui->seachDialog_searchLineEdit->text().toLower()){
             giLogCursorPos = 0;
             giOcurrencesFound = 0;
             emit(search_signal_resetCursor());
             gsFoundText = ui->seachDialog_searchLineEdit->text();
-            while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+            while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                 giOcurrencesFound ++;
                 selection.cursor = gobTextEdit->textCursor();
                 extraSelections.append(selection);
@@ -140,16 +141,16 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
             extraSelections.append(selection);
             gobTextEdit->setExtraSelections(extraSelections);
             emit(search_signal_resetCursor());
-            if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+            if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                 ui->searchDialog_replaceButton->setEnabled(true);
                 giLogCursorPos = 1;
             }
             ui->ocurrencesCounterLabel->setText(QString("%1/%2").arg(giLogCursorPos).arg(giOcurrencesFound));
         }else{
-            if(!gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+            if(!gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                 emit(search_signal_resetCursor());
                 giLogCursorPos = 0;
-                if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+                if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                     giLogCursorPos ++;
                 }
             }else{
@@ -174,3 +175,30 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 }
 
 
+
+void SearchDialog::on_caseSentive_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindCaseSensitively;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindCaseSensitively;
+    }
+}
+
+void SearchDialog::on_wholeWords_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindWholeWords;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindWholeWords;
+    }
+}
+
+void SearchDialog::on_backward_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindBackward;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindBackward;
+    }
+}

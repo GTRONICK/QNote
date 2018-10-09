@@ -3,12 +3,10 @@
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include <QIODevice>
-#include <QDesktopWidget>
 #include <QDesktopServices>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
 #include <QApplication>
-#include <QFontDatabase>
 #include <QFontDialog>
 #include <QPushButton>
 #include <QInputDialog>
@@ -21,11 +19,9 @@
 #include <QScrollBar>
 #include <QDialog>
 #include <QDebug>
-#include <QEvent>
-#include <QTabBar>
 #include <QTimer>
+#include <QTabBar>
 #include <QScreen>
-#include <QMap>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -57,7 +53,6 @@ MainWindow::MainWindow(QWidget *parent) :
     worker = new Worker;
     workerThread = new QThread;
     gobDownloadManager = new DownloadManager();
-    //gobDownloadManager->execute("http://gtronick.com/versions/QNote_version.txt");
     setAcceptDrops(true);
     loadConfig();
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
@@ -116,7 +111,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    //qDebug() << "Begin on_actionOpen_triggered";
     int liTempGobFileNamesSize = gobFileNames.size();
 
     giDefaultDirCounter ++;
@@ -145,7 +139,6 @@ void MainWindow::on_actionOpen_triggered()
     this->giOpenWithFlag = 0;
 
     this->addRecentFiles();
-    //qDebug() << "End on_actionOpen_triggered";
 }
 
 bool MainWindow::on_actionSave_As_triggered()
@@ -338,7 +331,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.2",
+    QMessageBox::about(this,"QNote 1.7.3",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -366,7 +359,7 @@ void MainWindow::on_actionNew_Tab_triggered()
     //qDebug() << "Begin on_actionNew_Tab_triggered";
     disableAutoReload();
     giTotalTabs ++;
-    QApplication::processEvents();
+    //QApplication::processEvents();
     CustomTextEdit *lobPlainTexEdit = new CustomTextEdit();
     lobPlainTexEdit->setPlaceholderText("Type Here...");
     lobPlainTexEdit->setFrameShape(QFrame::NoFrame);
@@ -635,6 +628,7 @@ void MainWindow::main_slot_tabChanged(int aIndex)
     giCurrentTabIndex = aIndex;    
     this->setStatusBarTextAsLink(gobFilePathsHash.value(aIndex));
     gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
+    main_slot_currentLineChanged();
     QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
     gobCurrentPlainTextEdit->setFont(serifFont);
     if(gobIsModifiedTextHash.value(aIndex)){
@@ -968,10 +962,7 @@ void MainWindow::checkIfUnsaved(int index)
               }
               break;
           case QMessageBox::Discard:
-              if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
-              else{
-                  ui->indicatorLabel->clear();
-              }
+              closeTab(index);
               break;
           case QMessageBox::Cancel:
               gbSaveCancelled = true;
@@ -1016,33 +1007,25 @@ int MainWindow::checkFileSize(QString asFileName)
 */
 void MainWindow::closeTab(int index)
 {
-    QFile *lobFile;
-
     if(giTotalTabs > 1){
-        lobFile = new QFile(gobFilePathsHash.value(index));
         gobFileNames.removeAt(gobFileNames.indexOf(gobFilePathsHash.value(index)));
-        giCurrentFileIndex --;
+        giCurrentFileIndex = gobFileNames.length();
         gobFilePathsHash.remove(index);
         for(int i = index; i < giTotalTabs; i ++){
             gobFilePathsHash.insert(i,gobFilePathsHash.value(i + 1));
         }
 
         gobIsModifiedTextHash.remove(index);
+
         for(int i = index; i < giTotalTabs; i ++){
             gobIsModifiedTextHash.insert(i,gobIsModifiedTextHash.value(i + 1));
         }
 
         this->setStatusBarTextAsLink(gobFilePathsHash.value(giCurrentTabIndex));
-        if(lobFile->isOpen()){
-            lobFile->close();
-            lobFile = NULL;
-        }
 
         giTotalTabs --;
         this->ui->tabWidget->removeTab(index);
-
     }else{
-
         giTotalTabs = 0;
         giCurrentTabIndex = 0;
         giCurrentFileIndex = 0;

@@ -31,11 +31,18 @@ private slots:
     void search_slot_setTextEdit(QPlainTextEdit *textEdit);
     void on_gobSwapTextButton_clicked();
 
+    void on_caseSentive_checkBox_stateChanged(int arg1);
+
+    void on_wholeWords_checkBox_stateChanged(int arg1);
+
+    void on_backward_checkBox_stateChanged(int arg1);
+
 private:
     Ui::SearchDialog *ui;
     int giLine;
     int giLogCursorPos;
     int giOcurrencesFound;
+    QTextDocument::FindFlags giSearchFlag;
     bool gbReplaceAllClicked;
     bool gbReplaceClicked;
     bool gbSearchClicked;

@@ -2,6 +2,7 @@
 #define SEARCHDIALOG_H
 
 #include <QDialog>
+#include <QList>
 #include <QPlainTextEdit>
 
 namespace Ui {
@@ -16,6 +17,7 @@ public:
     explicit SearchDialog(QWidget *parent = 0);
     void focusOnSearchInputText();
     void setSearchText(QString asText);
+    int adjustExtraSelections(QPlainTextEdit *aobTextEdit, QString asTextToSearch);
     ~SearchDialog();
 
 signals:

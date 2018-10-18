@@ -1,7 +1,7 @@
 # QNote
 Lightweight yet powerful and fast QT Text editor
 
-![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.1.PNG)
+![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.3.PNG)
 
 --This software is freeware --
 

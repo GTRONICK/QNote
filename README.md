@@ -7,8 +7,12 @@ Lightweight yet powerful and fast QT Text editor
 
 # HOW TO INSTALL:
 
+Windows:
 Download from here: https://github.com/GTRONICK/QNote/releases/download/v1.7.3/QNote.zip  
-Just decompress the zip file and run QNote.exe.
+Just decompress the zip file and run QNote.exe or, if you have a previous QNote version, just download the QNote.exe file and replace the existing one.
+
+Linux:
+Coming soon!
 
 # HOW TO USE:
 
@@ -82,6 +86,7 @@ Click on the status bar, at the file path location to open the containing folder
   5. Improved recen file list management.
   6. Added a clear list button for recent files.
   7. New Erase and Save function.
+  8. Gometry persistence.
 	
 QNote is now compiled with QT5.11.
 

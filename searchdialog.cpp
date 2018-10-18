@@ -14,6 +14,34 @@ SearchDialog::SearchDialog(QWidget *parent) :
     gbReplaceClicked = false;
     gbSearchClicked = false;
     gbReplaceAllClicked = false;
+    giSearchFlag = 0;
+}
+
+void SearchDialog::focusOnSearchInputText()
+{
+    this->ui->seachDialog_searchLineEdit->setFocus();
+}
+
+void SearchDialog::setSearchText(QString asText)
+{
+    this->ui->seachDialog_searchLineEdit->setText(asText);
+}
+
+int SearchDialog::adjustExtraSelections(QPlainTextEdit *aobTextEdit, QString asTextToSearch)
+{
+    QList<QTextEdit::ExtraSelection> extraSelections;
+    QTextEdit::ExtraSelection selection;
+    QColor lineColor = QColor(Qt::yellow).lighter(100);
+    selection.format.setBackground(lineColor);
+    selection.format.setForeground(QColor(0,0,0));
+
+    while(aobTextEdit->find(asTextToSearch,giSearchFlag)){
+        selection.cursor = aobTextEdit->textCursor();
+        extraSelections.append(selection);
+    }
+    extraSelections.append(selection);
+    aobTextEdit->setExtraSelections(extraSelections);
+    return extraSelections.size() > 0 ? extraSelections.size() -1 : 0;
 }
 
 /**
@@ -81,9 +109,6 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 {
     this->gobTextEdit = textEdit;
 
-    QList<QTextEdit::ExtraSelection> extraSelections;
-    QTextEdit::ExtraSelection selection;
-
     if(gbReplaceAllClicked){
         gbReplaceAllClicked = false;
         gobTextEdit->extraSelections().clear();
@@ -91,74 +116,85 @@ void SearchDialog::search_slot_setTextEdit(QPlainTextEdit *textEdit)
 
 
         emit(search_signal_resetCursor());
-        gsFoundText = ui->seachDialog_searchLineEdit->text();
-        while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
-            selection.cursor = gobTextEdit->textCursor();
-            extraSelections.append(selection);
-        }
-        gobTextEdit->setExtraSelections(extraSelections);
+        this->adjustExtraSelections(gobTextEdit,ui->seachDialog_searchLineEdit->text());
+        gobTextEdit->extraSelections().removeLast();
 
         QTextCursor cursor;
 
-        for(int i=0; i < extraSelections.length(); i++){
+        for(int i=0; i < gobTextEdit->extraSelections().length() - 1; i++){
 
-            cursor = extraSelections.at(i).cursor;
+            cursor = gobTextEdit->extraSelections().at(i).cursor;
             cursor.insertText(ui->searchDialog_replaceLineEdit->text());
         }
 
         gsFoundText = "";
         gobTextEdit->extraSelections().clear();
-        extraSelections.clear();        
 
     }else if(gbSearchClicked){
         gbSearchClicked = false;
-        QColor lineColor = QColor(Qt::yellow).lighter(100);
-        selection.format.setBackground(lineColor);
-        selection.format.setForeground(QColor(0,0,0));
         gobTextEdit->extraSelections().clear();
 
-        if(gsFoundText != ui->seachDialog_searchLineEdit->text()){
+        if(gsFoundText.toLower() != ui->seachDialog_searchLineEdit->text().toLower()){
+            gsFoundText = ui->seachDialog_searchLineEdit->text();
             giLogCursorPos = 0;
             giOcurrencesFound = 0;
             emit(search_signal_resetCursor());
-            gsFoundText = ui->seachDialog_searchLineEdit->text();
-            while(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
-                giOcurrencesFound ++;
-                selection.cursor = gobTextEdit->textCursor();
-                extraSelections.append(selection);
-            }
-            extraSelections.append(selection);
-            gobTextEdit->setExtraSelections(extraSelections);
+            giOcurrencesFound = this->adjustExtraSelections(gobTextEdit,ui->seachDialog_searchLineEdit->text());
             emit(search_signal_resetCursor());
-            if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+            if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                 ui->searchDialog_replaceButton->setEnabled(true);
                 giLogCursorPos = 1;
             }
-            ui->ocurrencesCounterLabel->setText(QString("%1/%2").arg(giLogCursorPos).arg(giOcurrencesFound));
         }else{
-            if(!gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+            if(!gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                 emit(search_signal_resetCursor());
                 giLogCursorPos = 0;
-                if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text())){
+                if(gobTextEdit->find(ui->seachDialog_searchLineEdit->text(),giSearchFlag)){
                     giLogCursorPos ++;
                 }
             }else{
                 ui->searchDialog_replaceButton->setEnabled(true);
                 giLogCursorPos ++;
             }
-            ui->ocurrencesCounterLabel->setText(QString("%1/%2").arg(giLogCursorPos).arg(giOcurrencesFound));
         }
+
+        ui->ocurrencesCounterLabel->setText(QString("%1/%2").arg(giLogCursorPos).arg(giOcurrencesFound));
 
     }else if(gbReplaceClicked){
-
         gbReplaceClicked = false;
-
         if(gsFoundText == ui->seachDialog_searchLineEdit->text()){
-
             gobTextEdit->textCursor().insertText(ui->searchDialog_replaceLineEdit->text());
         }
-
         ui->searchDialog_replaceButton->setEnabled(false);
     }
     emit search_signal_enableHighLight();
+}
+
+
+
+void SearchDialog::on_caseSentive_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindCaseSensitively;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindCaseSensitively;
+    }
+}
+
+void SearchDialog::on_wholeWords_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindWholeWords;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindWholeWords;
+    }
+}
+
+void SearchDialog::on_backward_checkBox_stateChanged(int arg1)
+{
+    if(arg1 == 2) {
+        giSearchFlag = giSearchFlag | QTextDocument::FindBackward;
+    } else {
+        giSearchFlag = giSearchFlag ^ QTextDocument::FindBackward;
+    }
 }

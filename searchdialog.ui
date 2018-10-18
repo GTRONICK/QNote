@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>269</width>
-    <height>97</height>
+    <width>300</width>
+    <height>122</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -23,35 +23,35 @@
    <string>Search &amp; replace</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+   <item row="0" column="0" colspan="2">
     <widget class="QLineEdit" name="seachDialog_searchLineEdit">
      <property name="placeholderText">
       <string>Find...</string>
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="0" column="2">
     <widget class="QPushButton" name="searchDialog_searchButton">
      <property name="text">
       <string>Search</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item row="1" column="0" colspan="2">
     <widget class="QLineEdit" name="searchDialog_replaceLineEdit">
      <property name="placeholderText">
       <string>Replace with...</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
+   <item row="1" column="2">
     <widget class="QPushButton" name="searchDialog_replaceButton">
      <property name="text">
       <string>Replace</string>
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
+   <item row="2" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="gobSwapTextButton">
@@ -91,10 +91,31 @@
      </item>
     </layout>
    </item>
-   <item row="2" column="1">
+   <item row="2" column="2">
     <widget class="QPushButton" name="searchDialog_replaceAllButton">
      <property name="text">
       <string>Replace all</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="caseSentive_checkBox">
+     <property name="text">
+      <string>Case sensitive</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QCheckBox" name="wholeWords_checkBox">
+     <property name="text">
+      <string>Whole words</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QCheckBox" name="backward_checkBox">
+     <property name="text">
+      <string>Backward</string>
      </property>
     </widget>
    </item>

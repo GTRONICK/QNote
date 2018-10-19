@@ -83,7 +83,7 @@ Click on the status bar, at the file path location to open the containing folder
   2. Improved file reloading.
   3. Improved text search (Now it can search for case sensitive and whole words. Also, the backward search (experimental))
   4. Upercase/lowercase shortcuts.
-  5. Improved recen file list management.
+  5. Improved recent file list management.
   6. Added a clear list button for recent files.
   7. New Erase and Save function.
   8. Gometry persistence.

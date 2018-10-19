@@ -331,7 +331,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.3",
+    QMessageBox::about(this,"QNote 1.7.4",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -356,10 +356,8 @@ void MainWindow::on_actionClose_Tab_triggered()
 
 void MainWindow::on_actionNew_Tab_triggered()
 {
-    //qDebug() << "Begin on_actionNew_Tab_triggered";
     disableAutoReload();
     giTotalTabs ++;
-    //QApplication::processEvents();
     CustomTextEdit *lobPlainTexEdit = new CustomTextEdit();
     lobPlainTexEdit->setPlaceholderText("Type Here...");
     lobPlainTexEdit->setFrameShape(QFrame::NoFrame);
@@ -383,7 +381,6 @@ void MainWindow::on_actionNew_Tab_triggered()
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
     gobFilePathsHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-    //qDebug() << "End on_actionNew_Tab_triggered";
 }
 
 void MainWindow::on_actionReload_file_triggered()

@@ -17,6 +17,7 @@ public:
     explicit SearchDialog(QWidget *parent = 0);
     void focusOnSearchInputText();
     void setSearchText(QString asText);
+    void resetSearch();
     int adjustExtraSelections(QPlainTextEdit *aobTextEdit, QString asTextToSearch);
     ~SearchDialog();
 
@@ -32,19 +33,17 @@ private slots:
     void on_searchDialog_replaceAllButton_clicked();
     void search_slot_setTextEdit(QPlainTextEdit *textEdit);
     void on_gobSwapTextButton_clicked();
-
     void on_caseSentive_checkBox_stateChanged(int arg1);
-
     void on_wholeWords_checkBox_stateChanged(int arg1);
-
     void on_backward_checkBox_stateChanged(int arg1);
 
 private:
     Ui::SearchDialog *ui;
     int giLine;
-    int giLogCursorPos;
+    int giCurrentOcurrence;
     int giOcurrencesFound;
-    QTextDocument::FindFlags giSearchFlag;
+    int giSearchFlag;
+    QTextDocument::FindFlags giSearchCondition;
     bool gbReplaceAllClicked;
     bool gbReplaceClicked;
     bool gbSearchClicked;

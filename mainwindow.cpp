@@ -121,12 +121,10 @@ void MainWindow::on_actionOpen_triggered()
     }
 
     if(this->giOpenWithFlag == 0){
-
         gobFileNames.append(QFileDialog::getOpenFileNames(this
                                             ,"Open File"
                                             ,gsDefaultDir
                                             ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)")));
-
     }
 
     gobFileNames = removeDuplicates(gobFileNames);
@@ -154,7 +152,6 @@ bool MainWindow::on_actionSave_As_triggered()
         gobFileNames.removeAt(gobFileNames.indexOf(gobFilePathsHash.value(giCurrentTabIndex)));
         gobFilePathsHash.remove(giCurrentTabIndex);
         gobFilePathsHash.insert(giCurrentTabIndex,lsFileName);
-
         return saveFile(lsFileName);
     } else {
         return false;
@@ -164,10 +161,8 @@ bool MainWindow::on_actionSave_As_triggered()
 bool MainWindow::on_actionSave_triggered()
 {
     QString lsFileName;
-
     giCurrentTabIndex = ui->tabWidget->currentIndex();
     lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
-
     QFile file(lsFileName);
 
     if(file.exists()){
@@ -180,7 +175,6 @@ bool MainWindow::on_actionSave_triggered()
 bool MainWindow::saveFile(QString asFileName, QString asText)
 {
     if(asFileName.isEmpty()){
-
         return false;
     }
 
@@ -220,7 +214,6 @@ bool MainWindow::saveFile(QString asFileName)
 
 bool MainWindow::saveConfig()
 {
-
     QString configText = "[THEME]\n";
     configText = configText + "themeFile=" + gsThemeFile + "\n";
     configText = configText + "statusBarColor=" + gsStatusBarColor + "\n";
@@ -263,11 +256,9 @@ bool MainWindow::loadConfig()
     QFile *lobConfigFile = new QFile("QNote_config.ini");
 
     if(!lobConfigFile->open(QFile::ReadOnly)){
-
         gsSavedFont = "Arial";
         giSavedFontStyle = 0;
         giSavedFontPointSize = 10;
-
         return false;
     }
 
@@ -296,13 +287,11 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
         else if(line.startsWith("recentFiles")) {
-
             QStringList lobRecentList= line.split("@@");
             lobRecentList.removeAt(0);
             for(QString lsRecentFile:lobRecentList){
                 gobRecentFiles.append(lsRecentFile);
             }
-
             this->addRecentFiles();
         }
     }
@@ -392,7 +381,6 @@ void MainWindow::on_actionReload_file_triggered()
         if(!gbIsAutoreloadEnabled) checkIfUnsaved(giCurrentTabIndex);
 
         if(gbSaveCancelled == false){
-
             setCurrentTabNameFromFile(lsFileName);
 
             if(!lobFile->open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -403,7 +391,6 @@ void MainWindow::on_actionReload_file_triggered()
         }else{
             gbSaveCancelled = false;
         }
-
     }else{
         gbIsReloadFile = false;
         if(gobTimer->isActive()){
@@ -533,8 +520,7 @@ void MainWindow::on_actionAuto_Reload_delay_triggered()
 void MainWindow::on_actionFont_triggered()
 {
     bool ok;
-    QFont font = QFontDialog::getFont(
-                    &ok, QFont(gsSavedFont, giSavedFontPointSize), this);
+    QFont font = QFontDialog::getFont(&ok, QFont(gsSavedFont, giSavedFontPointSize), this);
     if (ok) {
         gobCurrentPlainTextEdit->setFont(font);
         giSavedFontPointSize = gobCurrentPlainTextEdit->fontInfo().pointSize();
@@ -694,10 +680,10 @@ void MainWindow::main_slot_insertText(QString asText)
     gbIsOpenedFile = true;
     QScrollBar *lobBar = gobCurrentPlainTextEdit->verticalScrollBar();
 
-    if(lobBar->value() == lobBar->maximum()) {      //Si estamos al final del archivo
+    if(lobBar->value() == lobBar->maximum()) {
         gobCurrentPlainTextEdit->insertPlainText(asText);
         lockTextEditor();
-    } else {        //Si estamos en un punto intermedio y queremos hacer scroll
+    } else {
         gobCurrentPlainTextEdit->insertPlainText(asText);
     }
 
@@ -715,7 +701,6 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
     int liTempGobFileNamesSize = gobFileNames.size();
 
     if (mimeData->hasUrls()){
-
         QList<QUrl> urlList = mimeData->urls();
 
         for (int i = 0; i < urlList.size(); i++) {
@@ -723,12 +708,10 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
                 gobFileNames.append(urlList.at(i).toLocalFile());
             }
         }
+
         if(!gobFileNames.isEmpty() && gobFileNames.size() > liTempGobFileNamesSize){
-
             QString lsFileName = gobFileNames.at(giCurrentFileIndex);
-
             loadFile(lsFileName);
-
         }
         event->acceptProposedAction();
     }

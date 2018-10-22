@@ -30,6 +30,7 @@ public:
     void setStatusBarTextAsLink(QString asText);
     void lockTextEditor();
     bool showCustomMessage(QString asTitle, QString asText, QString asCustomButtonText);
+    void showTimedStatusMessage(QString asMessage, int aiTimeMsecs);
     ~MainWindow();
 
 signals:
@@ -87,7 +88,6 @@ private slots:
     void on_actionWord_wrap_toggled(bool arg1);
     void on_statusBar_linkActivated(const QString &link);
     void on_tabWidget_tabCloseRequested(int index);
-
     void on_actionErase_and_save_2_triggered();
 
 private:

@@ -208,7 +208,7 @@ bool MainWindow::saveFile(QString asFileName)
         giCurrentFileIndex ++;
         this->addRecentFiles();
     }
-
+    this->showTimedStatusMessage("File Saved!",1500);
     return true;
 }
 
@@ -240,12 +240,7 @@ bool MainWindow::saveConfig()
         configText = configText + "@@" + lsFile;
     }
 
-    if(!saveFile("QNote_config.ini",configText)) {
-        QMessageBox::critical(this,"ERROR","Can't save configuration file!");
-        return false;
-    } else {
-        return true;
-    }
+    return saveFile("QNote_config.ini",configText);
 }
 
 bool MainWindow::loadConfig()
@@ -1223,6 +1218,12 @@ bool MainWindow::showCustomMessage(QString asTitle, QString asText, QString asCu
     lobMesgBox->addButton(QMessageBox::Cancel);
     lobMesgBox->exec();
     return lobMesgBox->clickedButton() == lobButton ? true : false;
+}
+
+void MainWindow::showTimedStatusMessage(QString asMessage, int aiTimeMsecs)
+{
+    ui->statusBar->setText(asMessage);
+    QTimer::singleShot(aiTimeMsecs,this,SLOT(main_slot_resetStatusBarText()));
 }
 
 void MainWindow::on_actionErase_and_save_2_triggered()

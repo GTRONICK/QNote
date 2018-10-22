@@ -137,8 +137,6 @@ void MainWindow::on_actionOpen_triggered()
     }
 
     this->giOpenWithFlag = 0;
-
-    this->addRecentFiles();
 }
 
 bool MainWindow::on_actionSave_As_triggered()
@@ -713,8 +711,6 @@ void MainWindow::main_slot_insertText(QString asText)
 
 void MainWindow::main_slot_processDropEvent(QDropEvent *event)
 {
-//    qDebug() << "Begin main_slot_processDropEvent";
-
     const QMimeData* mimeData = event->mimeData();
     int liTempGobFileNamesSize = gobFileNames.size();
 
@@ -734,11 +730,8 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
             loadFile(lsFileName);
 
         }
-        addRecentFiles();
         event->acceptProposedAction();
     }
-
-//    qDebug() << "End main_slot_processDropEvent";
 }
 
 void MainWindow::main_slot_currentLineChanged()
@@ -887,8 +880,8 @@ void MainWindow::main_slot_resetStatusBarText()
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 {
     if(aobAction->text().compare("Clear list") != 0 && !gobFileNames.contains(aobAction->text())) {
-            gobFileNames.append(aobAction->text());
-            loadFile(aobAction->text());
+        gobFileNames.append(aobAction->text());
+        loadFile(aobAction->text());
     } else if(aobAction->text().compare("Clear list") == 0) {
         ui->menuOpen_Recent->clear();
         gobRecentFiles.clear();
@@ -1063,6 +1056,8 @@ void MainWindow::loadFile(QString asFileName)
         giCurrentFileIndex ++;      //Aumenta el cursor para leer el siguiente archivo en el mapa global de archivos
         emit main_signal_loadFile(lobFile);
 
+        addRecentFiles();
+
     } else {
         QMessageBox::warning(this,"Error!","The file " + asFileName + " can't be opened.");
         gobFileNames.removeAt(giCurrentFileIndex);
@@ -1171,19 +1166,19 @@ void MainWindow::addRecentFiles()
 
     for(int i = 0; i < gobFileNames.size(); i++){
 
-        if(!gobRecentFiles.contains(gobFileNames.at(i))) {
 
-            if(gobRecentFiles.size() < MAX_RECENT) {
-                gobRecentFiles.append(" ");
-            }
-
-            int liLastArrayPosition = gobRecentFiles.size() - 1;
-            for(int j = liLastArrayPosition; j > 0; j--) {
-                gobRecentFiles.move(j - 1,j);
-            }
-
-            gobRecentFiles.replace(0,gobFileNames.at(i));
+        if(gobRecentFiles.size() < MAX_RECENT) {
+            gobRecentFiles.append(" ");
         }
+
+        int liLastArrayPosition = gobRecentFiles.size() - 1;
+        for(int j = liLastArrayPosition; j > 0; j--) {
+            gobRecentFiles.move(j - 1,j);
+        }
+
+        gobRecentFiles.replace(0,gobFileNames.at(i));
+
+        gobRecentFiles = removeDuplicates(gobRecentFiles);
     }
 
     ui->menuOpen_Recent->clear();
@@ -1205,7 +1200,6 @@ void MainWindow::disableAutoReload()
 
 QStringList MainWindow::removeDuplicates(QStringList aobList)
 {
-    //qDebug() << "Begin removeDuplicates, aobList = " << aobList;
     QStringList returnList = aobList;
     int liFound = 0;
 
@@ -1222,7 +1216,6 @@ QStringList MainWindow::removeDuplicates(QStringList aobList)
 
         liFound = 0;
     }
-    //qDebug() << "End removeDuplicates, returnList = " << returnList;
 
     return returnList;
 }

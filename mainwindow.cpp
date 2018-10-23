@@ -2,26 +2,26 @@
 #include "customtextedit.h"
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
-#include <QIODevice>
 #include <QDesktopServices>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
 #include <QApplication>
+#include <QInputDialog>
 #include <QFontDialog>
 #include <QPushButton>
-#include <QInputDialog>
 #include <QFileDialog>
 #include <QTextStream>
-#include <QCheckBox>
 #include <QMessageBox>
+#include <QScrollBar>
+#include <QCheckBox>
+#include <QIODevice>
 #include <QMimeData>
 #include <QShortcut>
-#include <QScrollBar>
+#include <QTabBar>
+#include <QScreen>
 #include <QDialog>
 #include <QDebug>
 #include <QTimer>
-#include <QTabBar>
-#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -327,7 +327,7 @@ void MainWindow::on_actionAbout_QNote_triggered()
 
 void MainWindow::on_actionAbout_QT_triggered()
 {
-    QMessageBox::aboutQt(this,"About QT5.8");
+    QMessageBox::aboutQt(this,"About QT5.11");
 }
 
 void MainWindow::on_actionClose_Tab_triggered()

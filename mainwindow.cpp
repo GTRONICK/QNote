@@ -52,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     gsStatusBarColor = "orange";
     worker = new Worker;
     workerThread = new QThread;
-    gobDownloadManager = new DownloadManager();
     setAcceptDrops(true);
     loadConfig();
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
@@ -560,14 +559,6 @@ void MainWindow::on_actionReset_alerts_triggered()
     this->gbShowEraseAndSaveMessageBox = true;
 }
 
-void MainWindow::on_actionSet_Maximun_file_size_triggered()
-{
-    bool lbOk;
-    float liMaxFileSize = QInputDialog::getDouble(this, tr("Maximun File Size (MB)"),
-                                 tr("Mega Bytes:"),gfMaxFileSize, 0.01, 1000, 2, &lbOk);
-    if (lbOk) gfMaxFileSize = liMaxFileSize;
-}
-
 void MainWindow::on_actionTo_UPERCASE_triggered()
 {
     QTextCursor lobCursor = gobCurrentPlainTextEdit->textCursor();
@@ -955,24 +946,7 @@ bool MainWindow::checkFileExist(QString asFileName)
 
     return false;
 }
-/*
-int MainWindow::checkFileSize(QString asFileName)
-{
-    double liFileSize = QFile(asFileName).size();
-    int returnValue = QMessageBox::Ok;
 
-    if(liFileSize/1000000.00 > (gfMaxFileSize)){
-        QMessageBox msgBox(this);
-        msgBox.setWindowTitle("Maximum file size exceeded");
-        msgBox.setText("The file: \n" + asFileName + "\nIs too big. Do you want to open it anyway?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        returnValue = msgBox.exec();
-    }
-
-    return returnValue;
-}
-*/
 void MainWindow::closeTab(int index)
 {
     if(giTotalTabs > 1){

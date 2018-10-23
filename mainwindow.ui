@@ -186,7 +186,6 @@
     <addaction name="actionSystem_theme"/>
     <addaction name="separator"/>
     <addaction name="actionAuto_Reload_delay"/>
-    <addaction name="actionSet_Maximun_file_size"/>
     <addaction name="separator"/>
     <addaction name="actionReset_alerts"/>
    </widget>

@@ -12,7 +12,6 @@
 #include "searchdialog.h"
 #include "customtextedit.h"
 #include "worker.h"
-#include "downloadmanager.h"
 
 namespace Ui {
 class MainWindow;
@@ -81,7 +80,6 @@ private slots:
     void on_actionOpen_triggered();
     void on_actionReload_file_triggered();
     void on_actionReset_alerts_triggered();
-    void on_actionSet_Maximun_file_size_triggered();
     void on_actionSystem_theme_triggered();
     void on_actionTo_UPERCASE_triggered();
     void on_actionTo_lowercase_triggered();
@@ -96,7 +94,6 @@ private:
     bool saveConfig();
     bool saveFile(QString asFileName, QString asText);
     bool saveFile(QString asFileName);
-    //int checkFileSize(QString asFileName);
     void checkIfUnsaved(int index);
     void closeTab(int index);
     void loadFile(QString asFileName);
@@ -148,7 +145,6 @@ private:
     QThread *workerThread;          //Hilo separado del hilo principal
     QTimer *gobTimer;               //Temporizador para recarga automática de archivos
     Worker *worker;                 //
-    DownloadManager *gobDownloadManager;
 
 
 

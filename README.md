@@ -1,18 +1,30 @@
 # QNote
 Lightweight yet powerful and fast QT Text editor
 
-![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.3.PNG)
-
---This software is freeware --
+![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.4.png)
+*Preview in Plasma Desktop*
 
 # HOW TO INSTALL:
 
-Windows:
-Download from here: https://github.com/GTRONICK/QNote/releases/download/v1.7.3/QNote.zip  
+**Windows:**
+Download from here: https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote.zip  
 Just decompress the zip file and run QNote.exe or, if you have a previous QNote version, just download the QNote.exe file and replace the existing one.
 
-Linux:
-Coming soon!
+**Linux:**
+Download from here: https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote_Linux.zip  
+Just decompress the zip file and run 
+
+    sh QNote.sh 
+
+**Note:** If you have a QT based system, like KDE (Plasma) or LXQT, just try to run the binary file, not the .sh.
+
+# HOW TO BUILD FROM SOURCE:
+
+It is strongly recommended to use QtCreator with Qt5.11.2 to compile QNote, otherwise you may experiment unexpected behavior. However, you can build it manually with:
+
+    qmake QNote.pro
+    make all -j4
+    make clean
 
 # HOW TO USE:
 
@@ -35,7 +47,7 @@ Press Ctrl + W to close the current Tab, or press the close button in the desire
 To reload the current file, press F5, or go to the Tools menu and click on Reload File.
 
 **7. Auto Reload the current File:**    
-If you want to reload the current file automatically after some delay in milliseconds, pres F6, or go to the Tools menu, and select Auto Reload.
+If you want to reload the current file automatically after some delay in milliseconds, pres F6, or go to the Tools menu, and select Auto Reload. This will clear the current text but not the file.
 
 **8. To Search or replace text:**   
 Press Ctrl + F, or go to the Tools menu and click on Find & Replace.
@@ -43,7 +55,7 @@ Press Ctrl + F, or go to the Tools menu and click on Find & Replace.
 **9. To navigate to a specific line:**    
 Press Ctrl + G, or go to the Tools menu, and click on Go to Line... Then, type the line you want to go to.
 
-**10. Activate the Word Wrap:**     
+**10. Activate the Word Wrap:** (Active by default)     
 Press Alt + W or go to the Settings menu, and check Word Wrap. This will hide the horizontal scrollbar and will wrap the text if it exceeds the horizontal page limit.
 
 **11. Load a Theme:**   
@@ -63,10 +75,16 @@ Go to the Settings menu, and click on Font. The font dialog will appear, and the
 **15. Set the application Always on Top:**    
 Go to the Settings menu and check the Always on Top check box. This change will apply immediately. This could not work as spected in Windows, for now.
 
+**16. Erase And Save:**
+Press F8 or go to Tools -> Erase And Save. This will delete the file contents and save it as an empty file.
+
+**17. Erase, save and Auto Reload:**
+Press F7, or go to Tools -> Erase, save and Auto Reload. This will delete the file contents, and activate the auto reload feature.
+
 ## ADVANCED USAGE:
 
 **16. Group control:**		
-This feature allow you to assign up to 5 buffers to hold text. Press Ctrl + <1-4> to assign the desired group, for example:
+This feature allow you to assign up to 4 buffers to hold text. Press Ctrl + <1-4> to assign the desired group, for example:
 
 Ctrl +1, will assign the current selected text, to the buffer 1; If no text is selected, the buffer will be cleared.
 
@@ -80,15 +98,11 @@ Click on the status bar, at the file path location to open the containing folder
 ## IN THIS VERSION:
 
   1. General bug fixes.
-  2. Improved file reloading.
-  3. Improved text search (Now it can search for case sensitive and whole words. Also, the backward search (experimental))
-  4. Upercase/lowercase shortcuts.
-  5. Improved recent file list management.
-  6. Added a clear list button for recent files.
-  7. New Erase and Save function.
-  8. Gometry persistence.
+  2. Reduced code size.
+  3. Improved recent files ordering.
 	
 QNote is now compiled with QT5.11.
 
-------------------------------------------
-Send any suggestion to contact@gtronick.com, or go to gtronick.com and fill the form in the contact section.
+## HOW TO CONTRIBUTE:
+
+Create a new issue if you find some bug, or have any suggestion.

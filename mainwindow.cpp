@@ -2,26 +2,26 @@
 #include "customtextedit.h"
 #include "ui_mainwindow.h"
 #include "mainwindow.h"
-#include <QIODevice>
 #include <QDesktopServices>
 #include <QPlainTextEdit>
 #include <QFontMetrics>
 #include <QApplication>
+#include <QInputDialog>
 #include <QFontDialog>
 #include <QPushButton>
-#include <QInputDialog>
 #include <QFileDialog>
 #include <QTextStream>
-#include <QCheckBox>
 #include <QMessageBox>
+#include <QScrollBar>
+#include <QCheckBox>
+#include <QIODevice>
 #include <QMimeData>
 #include <QShortcut>
-#include <QScrollBar>
+#include <QTabBar>
+#include <QScreen>
 #include <QDialog>
 #include <QDebug>
 #include <QTimer>
-#include <QTabBar>
-#include <QScreen>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -52,7 +52,6 @@ MainWindow::MainWindow(QWidget *parent) :
     gsStatusBarColor = "orange";
     worker = new Worker;
     workerThread = new QThread;
-    gobDownloadManager = new DownloadManager();
     setAcceptDrops(true);
     loadConfig();
     QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
@@ -121,12 +120,10 @@ void MainWindow::on_actionOpen_triggered()
     }
 
     if(this->giOpenWithFlag == 0){
-
         gobFileNames.append(QFileDialog::getOpenFileNames(this
                                             ,"Open File"
                                             ,gsDefaultDir
                                             ,tr("All Files (*);;Text Files (*.txt);;Log files (*.log)")));
-
     }
 
     gobFileNames = removeDuplicates(gobFileNames);
@@ -137,8 +134,6 @@ void MainWindow::on_actionOpen_triggered()
     }
 
     this->giOpenWithFlag = 0;
-
-    this->addRecentFiles();
 }
 
 bool MainWindow::on_actionSave_As_triggered()
@@ -156,7 +151,6 @@ bool MainWindow::on_actionSave_As_triggered()
         gobFileNames.removeAt(gobFileNames.indexOf(gobFilePathsHash.value(giCurrentTabIndex)));
         gobFilePathsHash.remove(giCurrentTabIndex);
         gobFilePathsHash.insert(giCurrentTabIndex,lsFileName);
-
         return saveFile(lsFileName);
     } else {
         return false;
@@ -166,10 +160,8 @@ bool MainWindow::on_actionSave_As_triggered()
 bool MainWindow::on_actionSave_triggered()
 {
     QString lsFileName;
-
     giCurrentTabIndex = ui->tabWidget->currentIndex();
     lsFileName = gobFilePathsHash.value(giCurrentTabIndex);
-
     QFile file(lsFileName);
 
     if(file.exists()){
@@ -182,7 +174,6 @@ bool MainWindow::on_actionSave_triggered()
 bool MainWindow::saveFile(QString asFileName, QString asText)
 {
     if(asFileName.isEmpty()){
-
         return false;
     }
 
@@ -216,13 +207,12 @@ bool MainWindow::saveFile(QString asFileName)
         giCurrentFileIndex ++;
         this->addRecentFiles();
     }
-
+    this->showTimedStatusMessage("File Saved!",1500);
     return true;
 }
 
 bool MainWindow::saveConfig()
 {
-
     QString configText = "[THEME]\n";
     configText = configText + "themeFile=" + gsThemeFile + "\n";
     configText = configText + "statusBarColor=" + gsStatusBarColor + "\n";
@@ -249,12 +239,7 @@ bool MainWindow::saveConfig()
         configText = configText + "@@" + lsFile;
     }
 
-    if(!saveFile("QNote_config.ini",configText)) {
-        QMessageBox::critical(this,"ERROR","Can't save configuration file!");
-        return false;
-    } else {
-        return true;
-    }
+    return saveFile("QNote_config.ini",configText);
 }
 
 bool MainWindow::loadConfig()
@@ -265,11 +250,9 @@ bool MainWindow::loadConfig()
     QFile *lobConfigFile = new QFile("QNote_config.ini");
 
     if(!lobConfigFile->open(QFile::ReadOnly)){
-
         gsSavedFont = "Arial";
         giSavedFontStyle = 0;
         giSavedFontPointSize = 10;
-
         return false;
     }
 
@@ -298,13 +281,11 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
         else if(line.startsWith("recentFiles")) {
-
             QStringList lobRecentList= line.split("@@");
             lobRecentList.removeAt(0);
             for(QString lsRecentFile:lobRecentList){
                 gobRecentFiles.append(lsRecentFile);
             }
-
             this->addRecentFiles();
         }
     }
@@ -331,7 +312,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.3",
+    QMessageBox::about(this,"QNote 1.7.4",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -346,7 +327,7 @@ void MainWindow::on_actionAbout_QNote_triggered()
 
 void MainWindow::on_actionAbout_QT_triggered()
 {
-    QMessageBox::aboutQt(this,"About QT5.8");
+    QMessageBox::aboutQt(this,"About QT5.11");
 }
 
 void MainWindow::on_actionClose_Tab_triggered()
@@ -356,10 +337,8 @@ void MainWindow::on_actionClose_Tab_triggered()
 
 void MainWindow::on_actionNew_Tab_triggered()
 {
-    //qDebug() << "Begin on_actionNew_Tab_triggered";
     disableAutoReload();
     giTotalTabs ++;
-    //QApplication::processEvents();
     CustomTextEdit *lobPlainTexEdit = new CustomTextEdit();
     lobPlainTexEdit->setPlaceholderText("Type Here...");
     lobPlainTexEdit->setFrameShape(QFrame::NoFrame);
@@ -383,7 +362,6 @@ void MainWindow::on_actionNew_Tab_triggered()
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
     gobFilePathsHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
-    //qDebug() << "End on_actionNew_Tab_triggered";
 }
 
 void MainWindow::on_actionReload_file_triggered()
@@ -397,7 +375,6 @@ void MainWindow::on_actionReload_file_triggered()
         if(!gbIsAutoreloadEnabled) checkIfUnsaved(giCurrentTabIndex);
 
         if(gbSaveCancelled == false){
-
             setCurrentTabNameFromFile(lsFileName);
 
             if(!lobFile->open(QIODevice::ReadOnly | QIODevice::Text)){
@@ -408,7 +385,6 @@ void MainWindow::on_actionReload_file_triggered()
         }else{
             gbSaveCancelled = false;
         }
-
     }else{
         gbIsReloadFile = false;
         if(gobTimer->isActive()){
@@ -538,8 +514,7 @@ void MainWindow::on_actionAuto_Reload_delay_triggered()
 void MainWindow::on_actionFont_triggered()
 {
     bool ok;
-    QFont font = QFontDialog::getFont(
-                    &ok, QFont(gsSavedFont, giSavedFontPointSize), this);
+    QFont font = QFontDialog::getFont(&ok, QFont(gsSavedFont, giSavedFontPointSize), this);
     if (ok) {
         gobCurrentPlainTextEdit->setFont(font);
         giSavedFontPointSize = gobCurrentPlainTextEdit->fontInfo().pointSize();
@@ -582,14 +557,6 @@ void MainWindow::on_actionErase_and_save_triggered()
 void MainWindow::on_actionReset_alerts_triggered()
 {
     this->gbShowEraseAndSaveMessageBox = true;
-}
-
-void MainWindow::on_actionSet_Maximun_file_size_triggered()
-{
-    bool lbOk;
-    float liMaxFileSize = QInputDialog::getDouble(this, tr("Maximun File Size (MB)"),
-                                 tr("Mega Bytes:"),gfMaxFileSize, 0.01, 1000, 2, &lbOk);
-    if (lbOk) gfMaxFileSize = liMaxFileSize;
 }
 
 void MainWindow::on_actionTo_UPERCASE_triggered()
@@ -699,10 +666,10 @@ void MainWindow::main_slot_insertText(QString asText)
     gbIsOpenedFile = true;
     QScrollBar *lobBar = gobCurrentPlainTextEdit->verticalScrollBar();
 
-    if(lobBar->value() == lobBar->maximum()) {      //Si estamos al final del archivo
+    if(lobBar->value() == lobBar->maximum()) {
         gobCurrentPlainTextEdit->insertPlainText(asText);
         lockTextEditor();
-    } else {        //Si estamos en un punto intermedio y queremos hacer scroll
+    } else {
         gobCurrentPlainTextEdit->insertPlainText(asText);
     }
 
@@ -716,13 +683,10 @@ void MainWindow::main_slot_insertText(QString asText)
 
 void MainWindow::main_slot_processDropEvent(QDropEvent *event)
 {
-//    qDebug() << "Begin main_slot_processDropEvent";
-
     const QMimeData* mimeData = event->mimeData();
     int liTempGobFileNamesSize = gobFileNames.size();
 
     if (mimeData->hasUrls()){
-
         QList<QUrl> urlList = mimeData->urls();
 
         for (int i = 0; i < urlList.size(); i++) {
@@ -730,18 +694,13 @@ void MainWindow::main_slot_processDropEvent(QDropEvent *event)
                 gobFileNames.append(urlList.at(i).toLocalFile());
             }
         }
+
         if(!gobFileNames.isEmpty() && gobFileNames.size() > liTempGobFileNamesSize){
-
             QString lsFileName = gobFileNames.at(giCurrentFileIndex);
-
             loadFile(lsFileName);
-
         }
-        addRecentFiles();
         event->acceptProposedAction();
     }
-
-//    qDebug() << "End main_slot_processDropEvent";
 }
 
 void MainWindow::main_slot_currentLineChanged()
@@ -890,8 +849,8 @@ void MainWindow::main_slot_resetStatusBarText()
 void MainWindow::main_slot_loadFileFromAction(QAction *aobAction)
 {
     if(aobAction->text().compare("Clear list") != 0 && !gobFileNames.contains(aobAction->text())) {
-            gobFileNames.append(aobAction->text());
-            loadFile(aobAction->text());
+        gobFileNames.append(aobAction->text());
+        loadFile(aobAction->text());
     } else if(aobAction->text().compare("Clear list") == 0) {
         ui->menuOpen_Recent->clear();
         gobRecentFiles.clear();
@@ -987,24 +946,7 @@ bool MainWindow::checkFileExist(QString asFileName)
 
     return false;
 }
-/*
-int MainWindow::checkFileSize(QString asFileName)
-{
-    double liFileSize = QFile(asFileName).size();
-    int returnValue = QMessageBox::Ok;
 
-    if(liFileSize/1000000.00 > (gfMaxFileSize)){
-        QMessageBox msgBox(this);
-        msgBox.setWindowTitle("Maximum file size exceeded");
-        msgBox.setText("The file: \n" + asFileName + "\nIs too big. Do you want to open it anyway?");
-        msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
-        msgBox.setDefaultButton(QMessageBox::Ok);
-        returnValue = msgBox.exec();
-    }
-
-    return returnValue;
-}
-*/
 void MainWindow::closeTab(int index)
 {
     if(giTotalTabs > 1){
@@ -1065,6 +1007,8 @@ void MainWindow::loadFile(QString asFileName)
         gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
         giCurrentFileIndex ++;      //Aumenta el cursor para leer el siguiente archivo en el mapa global de archivos
         emit main_signal_loadFile(lobFile);
+
+        addRecentFiles();
 
     } else {
         QMessageBox::warning(this,"Error!","The file " + asFileName + " can't be opened.");
@@ -1174,19 +1118,19 @@ void MainWindow::addRecentFiles()
 
     for(int i = 0; i < gobFileNames.size(); i++){
 
-        if(!gobRecentFiles.contains(gobFileNames.at(i))) {
 
-            if(gobRecentFiles.size() < MAX_RECENT) {
-                gobRecentFiles.append(" ");
-            }
-
-            int liLastArrayPosition = gobRecentFiles.size() - 1;
-            for(int j = liLastArrayPosition; j > 0; j--) {
-                gobRecentFiles.move(j - 1,j);
-            }
-
-            gobRecentFiles.replace(0,gobFileNames.at(i));
+        if(gobRecentFiles.size() < MAX_RECENT) {
+            gobRecentFiles.append(" ");
         }
+
+        int liLastArrayPosition = gobRecentFiles.size() - 1;
+        for(int j = liLastArrayPosition; j > 0; j--) {
+            gobRecentFiles.move(j - 1,j);
+        }
+
+        gobRecentFiles.replace(0,gobFileNames.at(i));
+
+        gobRecentFiles = removeDuplicates(gobRecentFiles);
     }
 
     ui->menuOpen_Recent->clear();
@@ -1208,7 +1152,6 @@ void MainWindow::disableAutoReload()
 
 QStringList MainWindow::removeDuplicates(QStringList aobList)
 {
-    //qDebug() << "Begin removeDuplicates, aobList = " << aobList;
     QStringList returnList = aobList;
     int liFound = 0;
 
@@ -1225,7 +1168,6 @@ QStringList MainWindow::removeDuplicates(QStringList aobList)
 
         liFound = 0;
     }
-    //qDebug() << "End removeDuplicates, returnList = " << returnList;
 
     return returnList;
 }
@@ -1250,6 +1192,12 @@ bool MainWindow::showCustomMessage(QString asTitle, QString asText, QString asCu
     lobMesgBox->addButton(QMessageBox::Cancel);
     lobMesgBox->exec();
     return lobMesgBox->clickedButton() == lobButton ? true : false;
+}
+
+void MainWindow::showTimedStatusMessage(QString asMessage, int aiTimeMsecs)
+{
+    ui->statusBar->setText(asMessage);
+    QTimer::singleShot(aiTimeMsecs,this,SLOT(main_slot_resetStatusBarText()));
 }
 
 void MainWindow::on_actionErase_and_save_2_triggered()

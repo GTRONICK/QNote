@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
     gbIsReloadFile = false;
     gbSaveCancelled = false;
     gbShowEraseAndSaveMessageBox = true;
-    gfMaxFileSize = 1000.00;
     giCurrentFileIndex = 0;
     giCurrentTabIndex = 0;
     giDefaultDirCounter = 0;
@@ -88,6 +87,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
     connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
     connect(paste_gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr4()));
+
     connect(openFileLocation_shortCut,SIGNAL(activated()),this,SLOT(main_slot_openFileLocation()));
 
     connect(workerThread,SIGNAL(finished()),worker,SLOT(deleteLater()));
@@ -225,7 +225,6 @@ bool MainWindow::saveConfig()
     configText = configText + "[ALERTS]" + "\n";
     configText = configText + "showEraseAlert=" + QString("%1").arg(this->gbShowEraseAndSaveMessageBox) + "\n";
     configText = configText + "[FILESIZE]" + "\n";
-    configText = configText + "maxFileSize=" + QString("%1").arg(gfMaxFileSize) + "\n";
     configText = configText + "[RELOAD]" + "\n";
     configText = configText + "delay=" + QString("%1").arg(giTimerDelay) + "\n";
     configText = configText + "[RECENTS]" + "\n";
@@ -274,7 +273,6 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("x")  && liIsMaximized == 0) this->move(line.split("=").at(1).toInt(),this->geometry().y());
         else if(line.startsWith("y")  && liIsMaximized == 0) this->move(this->geometry().x(),line.split("=").at(1).toInt());
         else if(line.startsWith("showEraseAlert")) gbShowEraseAndSaveMessageBox = line.split("=").at(1).toInt();
-        else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
         else if(line.startsWith("recentFiles")) {
             QStringList lobRecentList= line.split("@@");

@@ -8,8 +8,6 @@ Worker::Worker(QObject *parent) : QObject(parent){
 
 void Worker::worker_slot_loadFile(QFile *file)
 {
-    //qDebug() << "Begin worker_slot_loadFile, file: " << file->fileName();
-
     QString line = "";
     QString text = "";
     QTextStream in(file);
@@ -21,8 +19,6 @@ void Worker::worker_slot_loadFile(QFile *file)
     file->close();
     text.remove(text.lastIndexOf("\n"),1);
     emit worker_signal_appendText(text);
-
-    //qDebug() << "End worker_slot_loadFile";
 }
 
 void Worker::worker_slot_tailFile(QFile *file)

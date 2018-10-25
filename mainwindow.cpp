@@ -54,18 +54,16 @@ MainWindow::MainWindow(QWidget *parent) :
     workerThread = new QThread;
     setAcceptDrops(true);
     loadConfig();
-    QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
 
+    QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
     QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
     QShortcut *gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+2")),this);
     QShortcut *gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+3")),this);
     QShortcut *gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+4")),this);
-
     QShortcut *paste_gr1_shortcut = new QShortcut(QKeySequence(tr("F1")),this);
     QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("F2")),this);
     QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("F3")),this);
     QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
-
     QShortcut *openFileLocation_shortCut = new QShortcut(QKeySequence(tr("F9")),this);
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(main_slot_tabChanged(int)));
@@ -86,12 +84,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr2()));
     connect(gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr3()));
     connect(gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr4()));
-
     connect(paste_gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr1()));
     connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
     connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
     connect(paste_gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr4()));
-
     connect(openFileLocation_shortCut,SIGNAL(activated()),this,SLOT(main_slot_openFileLocation()));
 
     connect(workerThread,SIGNAL(finished()),worker,SLOT(deleteLater()));
@@ -312,7 +308,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.4",
+    QMessageBox::about(this,"QNote 1.7.5",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -356,11 +352,10 @@ void MainWindow::on_actionNew_Tab_triggered()
     connect(this,SIGNAL(main_signal_refreshHighlight()),lobPlainTexEdit,SLOT(highlightCurrentLine()));
     connect(gobSearchDialog,SIGNAL(search_signal_disableHighLight()),lobPlainTexEdit,SLOT(cte_slot_disableHighLight()));
     connect(gobSearchDialog,SIGNAL(search_signal_enableHighLight()),lobPlainTexEdit,SLOT(cte_slot_enableHighLight()));
-    QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
-    lobPlainTexEdit->setFont(serifFont);
+    QFont lobFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
+    lobPlainTexEdit->setFont(lobFont);
     giCurrentTabIndex = this->ui->tabWidget->addTab(lobPlainTexEdit,"New " + QString::number(giTotalTabs));
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
-    gobFilePathsHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
 }
 
@@ -981,8 +976,6 @@ void MainWindow::closeTab(int index)
 
 void MainWindow::loadFile(QString asFileName)
 {
-    //qDebug() << "Begin loadFile, asFileName: " << asFileName;
-
     QFile *lobFile = new QFile(asFileName);
 
     if(!asFileName.isEmpty() && lobFile->exists()){
@@ -991,7 +984,7 @@ void MainWindow::loadFile(QString asFileName)
 
         emit main_signal_setCurrentFileSize(lobFile->size());
 
-        if(gobFilePathsHash.value(giCurrentTabIndex) != NULL && gobFilePathsHash.value(giCurrentTabIndex) != ""){
+        if((gobFilePathsHash.value(giCurrentTabIndex) != NULL && gobFilePathsHash.value(giCurrentTabIndex) != "") || gobIsModifiedTextHash.value(giCurrentTabIndex) == true){
             on_actionNew_Tab_triggered();
         }
 
@@ -1005,7 +998,7 @@ void MainWindow::loadFile(QString asFileName)
         }
 
         gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
-        giCurrentFileIndex ++;      //Aumenta el cursor para leer el siguiente archivo en el mapa global de archivos
+        giCurrentFileIndex ++;
         emit main_signal_loadFile(lobFile);
 
         addRecentFiles();
@@ -1014,7 +1007,6 @@ void MainWindow::loadFile(QString asFileName)
         QMessageBox::warning(this,"Error!","The file " + asFileName + " can't be opened.");
         gobFileNames.removeAt(giCurrentFileIndex);
     }
-    //qDebug() << "End loadFile";
 }
 
 void MainWindow::setFileNameFromCommandLine(QStringList asFileNames)
@@ -1062,11 +1054,9 @@ void MainWindow::dropEvent(QDropEvent *event)
     const QMimeData* mimeData = event->mimeData();
 
     if (mimeData->hasUrls()){
-
         QList<QUrl> urlList = mimeData->urls();
 
-        for (int i = 0; i < urlList.size(); i++)
-        {
+        for (int i = 0; i < urlList.size(); i++) {
             gobCurrentPlainTextEdit->appendPlainText(urlList.at(i).toLocalFile());
         }
 

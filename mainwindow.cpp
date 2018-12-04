@@ -914,7 +914,8 @@ void MainWindow::checkIfUnsaved(int index)
               }
               break;
           case QMessageBox::Discard:
-              closeTab(index);
+              if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
+              else ui->indicatorLabel->clear();
               break;
           case QMessageBox::Cancel:
               gbSaveCancelled = true;

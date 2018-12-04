@@ -141,9 +141,6 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
         } else {
             this->setTextCursor(cursor);
         }
-
-        this->centerCursor();
-
     }else {
         QPlainTextEdit::keyPressEvent(e);
     }

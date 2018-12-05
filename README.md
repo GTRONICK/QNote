@@ -1,7 +1,7 @@
 # QNote
 Lightweight yet powerful and fast QT Text editor
 
-![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.5.png)
+![QNote_GUI](https://sites.google.com/site/gtronick/QNote1.7.5.png)
 *Preview in Plasma Desktop*
 
 # HOW TO INSTALL:
@@ -100,9 +100,7 @@ Click on the status bar, at the file path location to open the containing folder
 ## IN THIS VERSION:
 
   1. General bug fixes.
-  2. Reduced code size.
-  3. Performance improvements.
-	
+
 QNote is now compiled with QT5.11.
 
 ## HOW TO CONTRIBUTE:

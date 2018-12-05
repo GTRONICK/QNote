@@ -1,18 +1,18 @@
 # QNote
 Lightweight yet powerful and fast QT Text editor
 
-![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.4.png)
+![QNote_GUI](https://sites.google.com/site/gtronick/QNote_1.7.5.png)
 *Preview in Plasma Desktop*
 
 # HOW TO INSTALL:
 
 **Windows:**
-Download from here: ![https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote_Windows.zip](https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote_Windows.zip)
+Download from here: ![https://github.com/GTRONICK/QNote/releases/download/v1.7.5/QNote_Windows.zip](https://github.com/GTRONICK/QNote/releases/download/v1.7.5/QNote_Windows.zip)
 
 Just decompress the zip file and run QNote.exe or, if you have a previous QNote version, just download the QNote.exe file and replace the existing one.
 
 **Linux:**
-Download from here: ![https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote_Linux.zip](https://github.com/GTRONICK/QNote/releases/download/v1.7.4/QNote_Linux.zip)
+Download from here: ![https://github.com/GTRONICK/QNote/releases/download/v1.7.5/QNote_Linux.zip](https://github.com/GTRONICK/QNote/releases/download/v1.7.5/QNote_Linux.zip)
 
 Just decompress the zip file and run 
 
@@ -101,7 +101,7 @@ Click on the status bar, at the file path location to open the containing folder
 
   1. General bug fixes.
   2. Reduced code size.
-  3. Improved recent files ordering.
+  3. Performance improvements.
 	
 QNote is now compiled with QT5.11.
 

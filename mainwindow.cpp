@@ -34,7 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
     gbIsReloadFile = false;
     gbSaveCancelled = false;
     gbShowEraseAndSaveMessageBox = true;
-    gfMaxFileSize = 1000.00;
     giCurrentFileIndex = 0;
     giCurrentTabIndex = 0;
     giDefaultDirCounter = 0;
@@ -54,18 +53,16 @@ MainWindow::MainWindow(QWidget *parent) :
     workerThread = new QThread;
     setAcceptDrops(true);
     loadConfig();
-    QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
 
+    QShortcut *menuBar_shortcut = new QShortcut(QKeySequence(tr("Ctrl+M")),this);
     QShortcut *gr1_shortcut = new QShortcut(QKeySequence(tr("Ctrl+1")),this);
     QShortcut *gr2_shortcut = new QShortcut(QKeySequence(tr("Ctrl+2")),this);
     QShortcut *gr3_shortcut = new QShortcut(QKeySequence(tr("Ctrl+3")),this);
     QShortcut *gr4_shortcut = new QShortcut(QKeySequence(tr("Ctrl+4")),this);
-
     QShortcut *paste_gr1_shortcut = new QShortcut(QKeySequence(tr("F1")),this);
     QShortcut *paste_gr2_shortcut = new QShortcut(QKeySequence(tr("F2")),this);
     QShortcut *paste_gr3_shortcut = new QShortcut(QKeySequence(tr("F3")),this);
     QShortcut *paste_gr4_shortcut = new QShortcut(QKeySequence(tr("F4")),this);
-
     QShortcut *openFileLocation_shortCut = new QShortcut(QKeySequence(tr("F9")),this);
 
     connect(ui->tabWidget,SIGNAL(currentChanged(int)),this,SLOT(main_slot_tabChanged(int)));
@@ -86,7 +83,6 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr2()));
     connect(gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr3()));
     connect(gr4_shortcut,SIGNAL(activated()),this,SLOT(main_slot_gr4()));
-
     connect(paste_gr1_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr1()));
     connect(paste_gr2_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr2()));
     connect(paste_gr3_shortcut,SIGNAL(activated()),this,SLOT(main_slot_pasteGr3()));
@@ -229,7 +225,6 @@ bool MainWindow::saveConfig()
     configText = configText + "[ALERTS]" + "\n";
     configText = configText + "showEraseAlert=" + QString("%1").arg(this->gbShowEraseAndSaveMessageBox) + "\n";
     configText = configText + "[FILESIZE]" + "\n";
-    configText = configText + "maxFileSize=" + QString("%1").arg(gfMaxFileSize) + "\n";
     configText = configText + "[RELOAD]" + "\n";
     configText = configText + "delay=" + QString("%1").arg(giTimerDelay) + "\n";
     configText = configText + "[RECENTS]" + "\n";
@@ -278,7 +273,6 @@ bool MainWindow::loadConfig()
         else if(line.startsWith("x")  && liIsMaximized == 0) this->move(line.split("=").at(1).toInt(),this->geometry().y());
         else if(line.startsWith("y")  && liIsMaximized == 0) this->move(this->geometry().x(),line.split("=").at(1).toInt());
         else if(line.startsWith("showEraseAlert")) gbShowEraseAndSaveMessageBox = line.split("=").at(1).toInt();
-        else if(line.startsWith("maxFileSize")) gfMaxFileSize = line.split("=").at(1).toFloat();
         else if(line.startsWith("delay")) giTimerDelay = line.split("=").at(1).toInt();
         else if(line.startsWith("recentFiles")) {
             QStringList lobRecentList= line.split("@@");
@@ -312,7 +306,7 @@ bool MainWindow::loadConfig()
 
 void MainWindow::on_actionAbout_QNote_triggered()
 {
-    QMessageBox::about(this,"QNote 1.7.4",
+    QMessageBox::about(this,"QNote 1.7.5",
                        "<style>"
                        "a:link {"
                            "color: orange;"
@@ -356,11 +350,10 @@ void MainWindow::on_actionNew_Tab_triggered()
     connect(this,SIGNAL(main_signal_refreshHighlight()),lobPlainTexEdit,SLOT(highlightCurrentLine()));
     connect(gobSearchDialog,SIGNAL(search_signal_disableHighLight()),lobPlainTexEdit,SLOT(cte_slot_disableHighLight()));
     connect(gobSearchDialog,SIGNAL(search_signal_enableHighLight()),lobPlainTexEdit,SLOT(cte_slot_enableHighLight()));
-    QFont serifFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
-    lobPlainTexEdit->setFont(serifFont);
+    QFont lobFont(gsSavedFont, giSavedFontPointSize, giSavedFontStyle);
+    lobPlainTexEdit->setFont(lobFont);
     giCurrentTabIndex = this->ui->tabWidget->addTab(lobPlainTexEdit,"New " + QString::number(giTotalTabs));
     this->ui->tabWidget->setCurrentIndex(giCurrentTabIndex);
-    gobFilePathsHash.insert(giCurrentTabIndex,"");
     gobIsModifiedTextHash.insert(giCurrentTabIndex,false);
 }
 
@@ -921,7 +914,8 @@ void MainWindow::checkIfUnsaved(int index)
               }
               break;
           case QMessageBox::Discard:
-              closeTab(index);
+              if(!gbIsReloadFile && !gbIsAutoreloadEnabled) closeTab(index);
+              else ui->indicatorLabel->clear();
               break;
           case QMessageBox::Cancel:
               gbSaveCancelled = true;
@@ -981,8 +975,6 @@ void MainWindow::closeTab(int index)
 
 void MainWindow::loadFile(QString asFileName)
 {
-    //qDebug() << "Begin loadFile, asFileName: " << asFileName;
-
     QFile *lobFile = new QFile(asFileName);
 
     if(!asFileName.isEmpty() && lobFile->exists()){
@@ -991,7 +983,7 @@ void MainWindow::loadFile(QString asFileName)
 
         emit main_signal_setCurrentFileSize(lobFile->size());
 
-        if(gobFilePathsHash.value(giCurrentTabIndex) != NULL && gobFilePathsHash.value(giCurrentTabIndex) != ""){
+        if((gobFilePathsHash.value(giCurrentTabIndex) != NULL && gobFilePathsHash.value(giCurrentTabIndex) != "") || gobIsModifiedTextHash.value(giCurrentTabIndex) == true){
             on_actionNew_Tab_triggered();
         }
 
@@ -1005,7 +997,7 @@ void MainWindow::loadFile(QString asFileName)
         }
 
         gobCurrentPlainTextEdit = qobject_cast<CustomTextEdit*>(ui->tabWidget->widget(giCurrentTabIndex));
-        giCurrentFileIndex ++;      //Aumenta el cursor para leer el siguiente archivo en el mapa global de archivos
+        giCurrentFileIndex ++;
         emit main_signal_loadFile(lobFile);
 
         addRecentFiles();
@@ -1014,7 +1006,6 @@ void MainWindow::loadFile(QString asFileName)
         QMessageBox::warning(this,"Error!","The file " + asFileName + " can't be opened.");
         gobFileNames.removeAt(giCurrentFileIndex);
     }
-    //qDebug() << "End loadFile";
 }
 
 void MainWindow::setFileNameFromCommandLine(QStringList asFileNames)
@@ -1062,11 +1053,9 @@ void MainWindow::dropEvent(QDropEvent *event)
     const QMimeData* mimeData = event->mimeData();
 
     if (mimeData->hasUrls()){
-
         QList<QUrl> urlList = mimeData->urls();
 
-        for (int i = 0; i < urlList.size(); i++)
-        {
+        for (int i = 0; i < urlList.size(); i++) {
             gobCurrentPlainTextEdit->appendPlainText(urlList.at(i).toLocalFile());
         }
 

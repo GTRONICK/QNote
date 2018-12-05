@@ -138,10 +138,9 @@ void CustomTextEdit::keyPressEvent(QKeyEvent *e){
         } else if(block.text().startsWith("\t")) {
             this->insertTabs(liTabCount);
             this->insertSpaces(liSpaceCount);
+        } else {
+            this->setTextCursor(cursor);
         }
-
-        this->centerCursor();
-
     }else {
         QPlainTextEdit::keyPressEvent(e);
     }

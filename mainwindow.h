@@ -102,9 +102,7 @@ private:
     void disableAutoReload();
     QStringList removeDuplicates(QStringList aobList);
 
-    Ui::MainWindow *ui;             //Interfaz de usuario
-
-    float gfMaxFileSize;
+    Ui::MainWindow *ui;
 
     int giCurrentFileIndex;         //indice para el archivo actual que se abrirá
     int giCurrentTabIndex;          //indice para la pestaña actual
@@ -122,18 +120,15 @@ private:
     bool gbSaveCancelled;           //Bandera que indica si se canceló el guardado del archivo
 
     QHash<int, QString> gobFilePathsHash;    //Mapa que almacena índice del tab y ruta de archivo
-    QHash<int, bool> gobIsModifiedTextHash;     //Mapa que almacena índice del tab, y si el archivo correspondiente ha sido modificado
-    QHash<int, bool> gobIsReloadingHash;     //Mapa que almacena índice del tab, y si el archivo se encuentra en recarga automática
+    QHash<int, bool> gobIsModifiedTextHash;  //Mapa que almacena índice del tab, y si el archivo correspondiente ha sido modificado
 
     QString gsDefaultDir;           //Cadena con la ruta del directorio por defecto a mostrar al abrir un archivo.
     QString gsGr1;
     QString gsGr2;
     QString gsGr3;
     QString gsGr4;
-    QString gsGr5;
     QString gsSavedFont;
-    QString gsStatusBarTemporalText;
-    QString gsThemeFile;            //Ruta del archivo del tema usado (style.qss)
+    QString gsThemeFile;            //Ruta del archivo del tema usado
     QString gsStatusBarColor;
 
     QStringList gobFileNames;       //Lista de archivos arrastrados o abiertos.

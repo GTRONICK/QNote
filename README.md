@@ -19,8 +19,6 @@ Just decompress the zip file and run
 
     sh QNote.sh 
 
-**Note:** If you have a QT based system, like KDE (Plasma) or LXQT, just try to run the binary file, not the .sh.
-
 # HOW TO BUILD FROM SOURCE:
 
 It is strongly recommended to use QtCreator with Qt5.11.2 to compile QNote, otherwise you may experiment unexpected behavior. However, you can build it manually with:
